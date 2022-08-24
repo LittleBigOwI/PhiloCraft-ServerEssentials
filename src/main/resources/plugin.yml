@@ -1,0 +1,50 @@
+name: ServerEssentials
+version: '${project.version}'
+main: dev.littlebigowl.serveressentials.ServerEssentials
+api-version: 1.19
+authors: [ LittleBigOwl ]
+description: A complete server configuration in one plugin
+website: https://littlebigowl.dev
+commands:
+  tpa:
+    description: Teleport to a player
+    usage: /<command> <player>
+  tpaccept:
+    description: Accept teleportation requests
+    usage: /<command>
+  tpdeny:
+    description: Deny teleportation requests
+    usage: /<command>
+  tpcancel:
+    description: Cancel teleportation request
+    usage: /<command>
+  sethome:
+    description: Set a home
+    usage: /<command> <homeName>
+  delhome:
+    description: Remove a home
+    usage: /<command> <homeName>
+  homes:
+    description: Show your homes
+    usage: /<command>
+  home:
+    description: Teleport to home
+    usage: /<command> <homeName>
+  tpahere:
+    description: Teleport player to you
+    usage: /<command> <player>
+  msg:
+    description: Message a player
+    usage: /<command> <player> <message>
+  r:
+    description: Answer a player
+    usage: /<command> <message>
+  rankinfo:
+    description: View rank information
+    usage: /<command>
+  alteritem:
+    description: Alter lore & name of an item
+    usage: /<command> <lore> <name>
+  particle:
+    description: Set a particle trail
+    usage: /<command> <set> <particle>
