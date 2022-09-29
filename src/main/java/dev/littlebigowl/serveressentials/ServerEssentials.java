@@ -9,9 +9,7 @@ import dev.littlebigowl.serveressentials.commands.*;
 import dev.littlebigowl.serveressentials.discordbot.App;
 import dev.littlebigowl.serveressentials.events.*;
 import dev.littlebigowl.serveressentials.models.Config;
-import dev.littlebigowl.serveressentials.utils.HomeUtil;
-import dev.littlebigowl.serveressentials.utils.ParticleUtil;
-import dev.littlebigowl.serveressentials.utils.SubmissionDetailsUtil;
+import dev.littlebigowl.serveressentials.utils.Database;
 import dev.littlebigowl.serveressentials.utils.TeamUtil;
 
 import org.apache.logging.log4j.LogManager;
@@ -23,13 +21,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.*;
 
-import javax.security.auth.login.LoginException;
-import java.io.IOException;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Objects;
 
 public final class ServerEssentials extends JavaPlugin {
 
+    public static Database database;
     public static HashMap<Player, Player> tpa = new HashMap<>();
     private static ServerEssentials plugin;
 
@@ -47,16 +45,14 @@ public final class ServerEssentials extends JavaPlugin {
 
         plugin = this;
         try {
-            HomeUtil.loadHomes();
-            ParticleUtil.loadParticles();
-            SubmissionDetailsUtil.loadSubmissions();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
+            database = new Database(
+                Config.get().getString("DatabaseHost"), 
+                Config.get().getString("DatabaseName"), 
+                Config.get().getString("DatabaseUser"), 
+                Config.get().getString("DatabasePassword")
+            );
             bot = new App();
-        } catch (LoginException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -123,9 +119,10 @@ public final class ServerEssentials extends JavaPlugin {
     }
 
     @Override
-    public void onDisable() {
+    public void onDisable(){
         // Plugin shutdown logic
         bot.stopBot();
+        try { database.closeConnection(); } catch (SQLException e) {Bukkit.getLogger().info(e.toString());}
 
         WebhookMessageBuilder builder = new WebhookMessageBuilder();
         builder.addEmbeds(new WebhookEmbedBuilder().setColor(0xff0000).setDescription("<:servericon:987016664799395900> **Server stopped.**").build());

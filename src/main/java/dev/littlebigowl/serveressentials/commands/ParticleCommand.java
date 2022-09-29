@@ -1,18 +1,20 @@
 package dev.littlebigowl.serveressentials.commands;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Particle;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 
+import dev.littlebigowl.serveressentials.ServerEssentials;
 import dev.littlebigowl.serveressentials.events.LogFilter;
-import dev.littlebigowl.serveressentials.models.PlayerParticle;
-import dev.littlebigowl.serveressentials.utils.ParticleUtil;
 import net.md_5.bungee.api.ChatColor;
 
 public class ParticleCommand implements CommandExecutor, TabCompleter{
@@ -32,14 +34,24 @@ public class ParticleCommand implements CommandExecutor, TabCompleter{
                     return true;
                 }
 
-                ParticleUtil.setParticle(player, Particle.valueOf(args[1].replace("minecraft:", "")));
+                try {
+                    ServerEssentials.database.resetConnection();
+                    ServerEssentials.database.createParticle(player.getUniqueId(), Particle.valueOf(args[1].replace("minecraft:", "")));
+                } catch (Exception e) {
+                    Bukkit.getLogger().info(e.toString());
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cSomething went wrong."));
+                    return true;
+                }
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aCreated new particle effect."));
 
             } else if(args[0].equals("remove")) {
 
-                PlayerParticle particle = ParticleUtil.deleteParticle(player);
-                if(particle == null) {
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYou don't have any particle effects."));
+                try {
+                    ServerEssentials.database.resetConnection();
+                    ServerEssentials.database.deleteParticle(player.getUniqueId());
+                } catch (SQLException e) {
+                    Bukkit.getLogger().info(e.toString());
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cSomething went wrong."));
                     return true;
                 }
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aDeleted particle effect."));
@@ -66,7 +78,7 @@ public class ParticleCommand implements CommandExecutor, TabCompleter{
                 stringParticles.add("minecraft:" + particle.toString());
             }
 
-            return stringParticles;
+            return StringUtil.copyPartialMatches(args[1], stringParticles, new ArrayList<>());
         } else {
             return new ArrayList<>();
         }

@@ -11,37 +11,72 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+import java.util.ArrayList;
+
 public class Submission {
     private String title;
-    private String upvotes;
-    private String comments;
-    private String awards;
-    private String creationDate;
+    private int upvotes;
+    private int comments;
+    private int awards;
+    private int creationDate;
     private String url;
     private String permalink;
-    private String subredditName;
-    private Subreddit subreddit;
-    private String archived;
-    private String NSFW;
-    private String spoiler;
-    private String crosspostable;
-    private JsonObject data;
+    private String subreddit;
+    private Boolean archived;
+    private Boolean NSFW;
+    private Boolean spoiler;
+    private Boolean crosspostable;
 
-    public Submission(JsonObject data) {
-        this.title = data.get("title").getAsString();
-        this.upvotes = data.get("ups").getAsString();
-        this.comments = data.get("num_comments").getAsString();
-        this.awards = data.get("total_awards_received").getAsString();
-        this.creationDate = data.get("created_utc").getAsString();
-        this.url = data.get("url").getAsString();
-        this.permalink = data.get("permalink").getAsString();
-        this.subredditName = data.get("subreddit_name_prefixed").getAsString();
-        this.subreddit = null;
-        this.archived = data.get("archived").getAsString();
-        this.NSFW = data.get("over_18").getAsString();
-        this.spoiler = data.get("spoiler").getAsString();
-        this.crosspostable = data.get("is_crosspostable").getAsString();
-        this.data = data;
+    public Submission(String title, int upvotes, int comments, int awards, int creationDate, String url, String permalink, String subreddit, Boolean archived, Boolean NSFW, Boolean spoiler, Boolean crosspostable) {
+        this.title = title;
+        this.upvotes = upvotes;
+        this.comments = comments;
+        this.awards = awards;
+        this.creationDate = creationDate;
+        this.url = url;
+        this.permalink = permalink;
+        this.subreddit = subreddit;
+        this.archived =archived;
+        this.NSFW = NSFW;
+        this.spoiler = spoiler;
+        this.crosspostable = crosspostable;
+    }
+
+    public ArrayList<JsonObject> getData(String url) throws IOException {
+        URL redditUrl = new URL(url);
+        URLConnection request = redditUrl.openConnection();
+
+        request.setRequestProperty("Content-Type", "application/json; utf-8");
+        request.setRequestProperty("User-Agent", "dev.littlebigowl.redditdiscordtest.bot");
+
+        InputStream inputStream = request.getInputStream();
+        Gson gson = new Gson();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+        JsonArray obj = gson.fromJson(reader, JsonArray.class);
+        JsonObject data = obj.get(0).getAsJsonObject().get("data").getAsJsonObject().get("children").getAsJsonArray().get(0).getAsJsonObject().get("data").getAsJsonObject();
+
+
+        URL subredditURL = new URL("https://www.reddit.com/" + this.subreddit + "/about.json");
+        URLConnection subredditRequest = subredditURL.openConnection();;
+        
+        subredditRequest.setRequestProperty("Content-Type", "application/json; utf-8");
+        subredditRequest.setRequestProperty("User-Agent", "dev.littlebigowl.redditdiscordtest.bot");
+
+        inputStream = subredditRequest.getInputStream();
+        gson = new Gson();
+        reader = new BufferedReader(new InputStreamReader(inputStream));
+
+        JsonObject subredditData = gson.fromJson(reader, JsonObject.class).get("data").getAsJsonObject();
+        
+        ArrayList<JsonObject> totalData = new ArrayList<>();
+        totalData.add(data);
+        totalData.add(subredditData);
+        
+        return totalData;
     }
 
     public static Submission fromUrl(String url) throws IOException {
@@ -58,27 +93,49 @@ public class Submission {
         JsonArray obj = gson.fromJson(reader, JsonArray.class);
         JsonObject data = obj.get(0).getAsJsonObject().get("data").getAsJsonObject().get("children").getAsJsonArray().get(0).getAsJsonObject().get("data").getAsJsonObject();
         
-        return new Submission(data);
+        String title = data.get("title").getAsString();
+        int upvotes = data.get("ups").getAsInt();
+        int comments = data.get("num_comments").getAsInt();
+        int awards = data.get("total_awards_received").getAsInt();
+        int creationDate = Math.round(data.get("created_utc").getAsFloat());
+        String submiurl = "https://www.reddit.com" + data.get("permalink").getAsString();
+        String permalink = data.get("url").getAsString();
+        String subreddit = data.get("subreddit_name_prefixed").getAsString();
+        Boolean archived = data.get("archived").getAsBoolean();
+        Boolean NSFW = data.get("over_18").getAsBoolean();
+        Boolean spoiler = data.get("spoiler").getAsBoolean();
+        Boolean crosspostable = data.get("is_crosspostable").getAsBoolean();
+
+        return new Submission(title, upvotes, comments, awards, creationDate, submiurl, permalink, subreddit, archived, NSFW, spoiler, crosspostable);
     }
 
     public String getTitle() {
         return this.title;
     }
 
-    public String getUpvotes() {
+    public int getUpvotes() {
         return this.upvotes;
     }
 
-    public String getComments() {
+    public int getComments() {
         return this.comments;
     }
 
-    public String getAwards() {
+    public int getAwards() {
         return this.awards;
     }
 
-    public String getCreationDate() {
+    public int getCreationDateUNIX() {
         return this.creationDate;
+    }
+
+    public String getCreationDate() {
+        int unix = this.getCreationDateUNIX();
+        Date date = new Date(unix*1000L);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT+2"));
+
+        return sdf.format(date);
     }
 
     public String getUrl() {
@@ -89,41 +146,42 @@ public class Submission {
         return this.permalink;
     }
 
-    public Subreddit getSubreddit() throws IOException {
-        if(this.subreddit == null) {
-            URL subredditURL = new URL("https://www.reddit.com/" + this.subredditName + "/about.json");
-            URLConnection subredditRequest = subredditURL.openConnection();;
-            
-            subredditRequest.setRequestProperty("Content-Type", "application/json; utf-8");
-            subredditRequest.setRequestProperty("User-Agent", "dev.littlebigowl.redditdiscordtest.bot");
-
-            InputStream inputStream = subredditRequest.getInputStream();
-            Gson gson = new Gson();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-
-            JsonObject data = gson.fromJson(reader, JsonObject.class).get("data").getAsJsonObject();
-            this.subreddit = new Subreddit(data);
-        }
-        return this.subreddit;
-    }
-
     public Boolean isArchived() {
-        if(this.archived.equals("false")) { return false; } else { return true; }
+        return this.archived;
     }
 
     public Boolean isNSFW() {
-        if(this.NSFW.equals("false")) { return false; } else { return true; }
+        return this.NSFW;
     }
 
     public Boolean isSpoiler() {
-        if(this.spoiler.equals("false")) { return false; } else { return true; }
-    }
+        return this.spoiler;
+    }    
 
     public Boolean isCrosspostable() {
-        if(this.crosspostable.equals("false")) { return false; } else { return true; }
+        return this.crosspostable;
     }
 
-    public JsonObject getRawJsonData() {
-        return this.data;
+    public String getSubreddit() throws IOException {
+        return this.subreddit;
+    }
+
+    public String getDescription(String url) throws IOException {
+        JsonObject data = this.getData(url).get(0);
+        return data.get("selftext").getAsString();
+    }
+
+    public InputStream getVideo(String url) throws IOException {
+        JsonObject data = this.getData(url).get(0);
+        return new URL(data.get("media").getAsJsonObject().get("reddit_video").getAsJsonObject().get("fallback_url").getAsString()).openStream();
+    }
+
+    public int getVideoDuration(String url) throws IOException {
+        JsonObject data = this.getData(url).get(0);
+        return Integer.parseInt(data.get("media").getAsJsonObject().get("reddit_video").getAsJsonObject().get("duration").getAsString());
+    }
+
+    public String getSubredditIcon(String url) throws IOException {
+        return this.getData(url).get(1).get("community_icon").getAsString().split("\\?")[0];
     }
 }

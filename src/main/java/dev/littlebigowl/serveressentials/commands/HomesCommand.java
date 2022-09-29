@@ -1,7 +1,8 @@
 package dev.littlebigowl.serveressentials.commands;
 
+import dev.littlebigowl.serveressentials.ServerEssentials;
 import dev.littlebigowl.serveressentials.events.LogFilter;
-import dev.littlebigowl.serveressentials.utils.HomeUtil;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
@@ -15,16 +16,12 @@ public class HomesCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
         if (sender instanceof Player && label.equalsIgnoreCase("homes")) {
+            
             Player player = (Player) sender;
+            ArrayList<String> playerHomeNames = ServerEssentials.database.cachedPlayerHomeNames.get(player.getUniqueId());
 
-            if(HomeUtil.getHomeCount(player) == 0) {
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYou don't have any homes."));
-                return true;
-            }
-
-            ArrayList<String> playerHomeNames = HomeUtil.getHomeNames(player);
             StringBuffer homelist = new StringBuffer();
-            homelist.append(ChatColor.translateAlternateColorCodes('&', "&eHomes&6[&e" + Integer.toString(HomeUtil.getHomeCount(player)) + "&6]&7: &6"));
+            homelist.append(ChatColor.translateAlternateColorCodes('&', "&eHomes&6[&e" + Integer.toString(playerHomeNames.size()) + "&6]&7: &6"));
 
             int i = 0;
             for(String homeName : playerHomeNames) {

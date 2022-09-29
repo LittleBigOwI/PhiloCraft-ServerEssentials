@@ -1,25 +1,28 @@
 package dev.littlebigowl.serveressentials.models;
 
+import java.util.UUID;
+
 import org.bukkit.Particle;
 
 public class PlayerParticle {
-    private String playerName;
+    private UUID playerUUID;
     private Particle particle;
-    public PlayerParticle(String playerName, Particle particle) {
-        this.playerName = playerName;
+    
+    public PlayerParticle(UUID playerUUID, Particle particle) {
+        this.playerUUID = playerUUID;
         this.particle = particle;
     }
 
-    public void setPlayerName(String playerName) {
-        this.playerName = playerName;
+    public void setPlayerName(UUID playerUUID) {
+        this.playerUUID = playerUUID;
     }
 
     public void setParticle(Particle particle) {
         this.particle = particle;
     }
 
-    public String getPlayerName() {
-        return this.playerName;
+    public UUID getPlayerUUID() {
+        return this.playerUUID;
     }
 
     public Particle getParticle() {

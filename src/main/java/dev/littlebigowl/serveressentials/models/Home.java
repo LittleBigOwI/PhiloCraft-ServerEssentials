@@ -1,48 +1,41 @@
 package dev.littlebigowl.serveressentials.models;
 
-import java.util.Date;
+import java.util.UUID;
+
+import org.bukkit.Location;
 
 public class Home {
-    private String playerName;
+    private UUID playerUUID;
     private String name;
-    private String location;
-    private Date created;
-    public Home(String playerName, String name, String location) {
-        this.playerName = playerName;
+    private Location location;
+    
+    public Home(UUID playerUUID, String name, Location playerHomeLocation) {
+        this.playerUUID = playerUUID;
         this.name = name;
-        this.location = location;
-        this.created = new Date();
+        this.location = playerHomeLocation;
     }
 
-    public void setPlayerName(String playerName) {
-        this.playerName = playerName;
+    public void setPlayerUUID(UUID playerUUID) {
+        this.playerUUID = playerUUID;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setLocation(String location) {
+    public void setLocation(Location location) {
         this.location = location;
     }
 
-    public void setCreated(Date created) {
-        this.created = created;
-    }
-
-    public String getPlayerName() {
-        return playerName;
+    public UUID getPlayerUUID() {
+        return playerUUID;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getLocation() {
+    public Location getLocation() {
         return location;
-    }
-
-    public Date getCreated() {
-        return created;
     }
 }

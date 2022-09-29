@@ -1,7 +1,10 @@
 package dev.littlebigowl.serveressentials.commands;
 
+import dev.littlebigowl.serveressentials.ServerEssentials;
 import dev.littlebigowl.serveressentials.events.LogFilter;
-import dev.littlebigowl.serveressentials.utils.HomeUtil;
+import dev.littlebigowl.serveressentials.models.Home;
+
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -10,16 +13,18 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+
+import java.sql.SQLException;
 
 public class HomeCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player && label.equalsIgnoreCase("home")) {
+           
             Player player = (Player) sender;
-            ArrayList<String> playerHomeNames = HomeUtil.getHomeNames(player);
-
+            ArrayList<String> playerHomeNames = ServerEssentials.database.cachedPlayerHomeNames.get(player.getUniqueId()); 
+            
             if (args.length == 1) {
                 if (playerHomeNames.contains(args[0])) {
 
@@ -27,9 +32,17 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cHomes only work in the Overworld."));
                         return true;
                     }
-
-                    Location homeLoc = HomeUtil.getHomeLocation(Objects.requireNonNull(HomeUtil.getHome(player, args[0])));
-                    player.teleport(homeLoc);
+                    
+                    try {
+                        ServerEssentials.database.resetConnection();
+                        Home playerHome = ServerEssentials.database.getHome(player.getUniqueId(), args[0]);
+                        Location homeLoc = playerHome.getLocation();
+                        player.teleport(homeLoc);
+                    } catch (SQLException e) {
+                        Bukkit.getLogger().info(e.toString());
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cSomething went wrong."));
+                        return true;
+                    }
 
                 } else {
                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cCould not find home."));
@@ -37,8 +50,17 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
             } else if (args.length == 0) {
                 if (playerHomeNames.contains("home")) {
 
-                    Location homeLoc = HomeUtil.getHomeLocation(Objects.requireNonNull(HomeUtil.getHome(player, "home")));
-                    player.teleport(homeLoc);
+                    Home playerHome;
+                    try {
+                        ServerEssentials.database.resetConnection();
+                        playerHome = ServerEssentials.database.getHome(player.getUniqueId(), "home");
+                        Location homeLoc = playerHome.getLocation();
+                        player.teleport(homeLoc);
+                    } catch (SQLException e) {
+                        Bukkit.getLogger().info(e.toString());
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cSomething went wrong."));
+                        return true;
+                    }
 
                 } else {
                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cCould not find home."));
@@ -58,7 +80,7 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player && label.equalsIgnoreCase("home") && args.length == 1) {
             Player player = (Player) sender;
-            return HomeUtil.getHomeNames(player);
+            return ServerEssentials.database.cachedPlayerHomeNames.get(player.getUniqueId());
         }
         ArrayList<String> options = new ArrayList<>();
         return options;
