@@ -5,17 +5,18 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import dev.littlebigowl.serveressentials.events.LogFilter;
 
 import java.awt.*;
 import java.util.ArrayList;
 
+import javax.annotation.Nonnull;
+
 public class OnlineCommand extends ListenerAdapter {
 
     @Override
-    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
+    public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
 
         if(event.getName().equals("online")){
             ArrayList<String> players = new ArrayList<>();

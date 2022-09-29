@@ -173,22 +173,25 @@ public class Database {
         PreparedStatement statement = connection.prepareStatement("SELECT * FROM Homes WHERE UUID='" + playerUUID.toString() + "' AND name='" + homeName + "'");
         ResultSet results = statement.executeQuery();
 
-        UUID playerHomeUUID = UUID.fromString(results.getString("UUID"));
-        String playerHomeName = results.getString("name");
 
-        String playerHomeLocationString = results.getString("location");
-        String[] playerHomeLocationValues = playerHomeLocationString.split(":");
+        while (results.next()) {
+            UUID playerHomeUUID = UUID.fromString(results.getString("UUID"));
+            String playerHomeName = results.getString("name");
 
-        Location playerHomeLocation = new Location(
-                Bukkit.getServer().getWorld("world"),
-                Float.parseFloat(playerHomeLocationValues[0]),
-                Float.parseFloat(playerHomeLocationValues[1]),
-                Float.parseFloat(playerHomeLocationValues[2]),
-                Float.parseFloat(playerHomeLocationValues[3]),
-                Float.parseFloat(playerHomeLocationValues[4])
-        );
+            String playerHomeLocationString = results.getString("location");
+            String[] playerHomeLocationValues = playerHomeLocationString.split(":");
 
-        return new Home(playerHomeUUID, playerHomeName, playerHomeLocation);
+            Location playerHomeLocation = new Location(
+                    Bukkit.getServer().getWorld("world"),
+                    Float.parseFloat(playerHomeLocationValues[0]),
+                    Float.parseFloat(playerHomeLocationValues[1]),
+                    Float.parseFloat(playerHomeLocationValues[2]),
+                    Float.parseFloat(playerHomeLocationValues[3]),
+                    Float.parseFloat(playerHomeLocationValues[4])
+            );
+            return new Home(playerHomeUUID, playerHomeName, playerHomeLocation);
+        }
+        return null;
     }
 
     public void deleteHome(UUID playerUUID, String homeName) throws SQLException {
