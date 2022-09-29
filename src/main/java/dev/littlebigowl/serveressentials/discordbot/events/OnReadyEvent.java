@@ -5,6 +5,9 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+
+import javax.annotation.Nonnull;
+
 import org.bukkit.Bukkit;
 
 public class OnReadyEvent extends ListenerAdapter{
@@ -14,7 +17,7 @@ public class OnReadyEvent extends ListenerAdapter{
         this.bot = bot;
     }
 
-    public void onReady(ReadyEvent event) {
+    public void onReady(@Nonnull ReadyEvent event) {
 
         for(Guild guild : this.bot.getGuilds()) {
             guild.upsertCommand("play", "play audio in a voice channel")

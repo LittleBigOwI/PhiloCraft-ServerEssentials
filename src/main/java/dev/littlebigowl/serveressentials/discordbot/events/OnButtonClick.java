@@ -3,6 +3,8 @@ package dev.littlebigowl.serveressentials.discordbot.events;
 import java.awt.Color;
 import java.io.IOException;
 
+import javax.annotation.Nonnull;
+
 import org.bukkit.Bukkit;
 
 import dev.littlebigowl.serveressentials.ServerEssentials;
@@ -14,7 +16,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 public class OnButtonClick extends ListenerAdapter{
 
     @Override
-    public void onButtonInteraction(ButtonInteractionEvent event) {
+    public void onButtonInteraction(@Nonnull ButtonInteractionEvent event) {
         String id = event.getButton().getId();
 
         Submission submission;

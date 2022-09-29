@@ -1,5 +1,7 @@
 package dev.littlebigowl.serveressentials.discordbot.events;
 
+import javax.annotation.Nonnull;
+
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -7,7 +9,7 @@ import net.dv8tion.jda.api.managers.AudioManager;
 public class OnGuildVoiceLeave extends ListenerAdapter {
  
     @Override
-    public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
+    public void onGuildVoiceLeave(@Nonnull GuildVoiceLeaveEvent event) {
         if(event.getChannelLeft().getMembers().size() == 1) {
             if(event.getChannelLeft().getMembers().get(0).getId().equals(event.getGuild().getSelfMember().getId())) {
                 

@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.annotation.Nonnull;
+
 import org.bukkit.Bukkit;
 
 import dev.littlebigowl.serveressentials.ServerEssentials;
@@ -18,7 +20,7 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 public class OnRedditLinkSend extends ListenerAdapter{
     
     @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
+    public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
 
         if(event.getChannelType().isGuild() && event.getChannel().getId().equals(Config.get().getString("DiscordRedditChannelID"))) {
             if(event.getMessage().getContentRaw().startsWith("https://www.reddit.com/r/") && event.getMessage().getContentRaw().contains("?")) {
