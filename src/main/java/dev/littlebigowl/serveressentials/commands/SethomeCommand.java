@@ -26,7 +26,8 @@ public class SethomeCommand implements CommandExecutor, TabCompleter {
         if (sender instanceof Player && label.equalsIgnoreCase("sethome")) {
 
             Player player = (Player) sender;
-            ArrayList<String> playerHomeNames = ServerEssentials.database.cachedPlayerHomeNames.get(player.getUniqueId());
+            ArrayList<String> playerHomeNames = new ArrayList<>();
+            try { playerHomeNames = ServerEssentials.database.cachedPlayerHomeNames.get(player.getUniqueId()); } catch (Exception e) {}
             
             if(args.length == 1) {
                 if(player.getWorld().getEnvironment().equals(World.Environment.NORMAL)){
