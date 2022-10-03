@@ -23,10 +23,11 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
         if (sender instanceof Player && label.equalsIgnoreCase("home")) {
            
             Player player = (Player) sender;
-            ArrayList<String> playerHomeNames = ServerEssentials.database.cachedPlayerHomeNames.get(player.getUniqueId()); 
+            ArrayList<String> playerHomeNames = new ArrayList<String>();
+            try { playerHomeNames = ServerEssentials.database.cachedPlayerHomeNames.get(player.getUniqueId()); } catch (Exception e) {}
             
             if (args.length == 1) {
-                if (playerHomeNames.contains(args[0])) {
+                if (playerHomeNames != null && playerHomeNames.contains(args[0])) {
 
                     if(!player.getWorld().getEnvironment().equals(World.Environment.NORMAL)) {
                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cHomes only work in the Overworld."));
@@ -48,7 +49,7 @@ public class HomeCommand implements CommandExecutor, TabCompleter {
                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cCould not find home."));
                 }
             } else if (args.length == 0) {
-                if (playerHomeNames.contains("home")) {
+                if (playerHomeNames != null && playerHomeNames.contains("home")) {
 
                     Home playerHome;
                     try {

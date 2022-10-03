@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.Arrays;
 
 import java.io.IOException;
 
@@ -59,12 +60,12 @@ public class Database {
             String[] playerHomeLocationValues = playerHomeLocationString.split(":");
 
             Location playerHomeLocation = new Location(
-                    Bukkit.getServer().getWorld("world"),
-                    Float.parseFloat(playerHomeLocationValues[0]),
-                    Float.parseFloat(playerHomeLocationValues[1]),
-                    Float.parseFloat(playerHomeLocationValues[2]),
-                    Float.parseFloat(playerHomeLocationValues[3]),
-                    Float.parseFloat(playerHomeLocationValues[4])
+                Bukkit.getServer().getWorld("world"),
+                Float.parseFloat(playerHomeLocationValues[0]),
+                Float.parseFloat(playerHomeLocationValues[1]),
+                Float.parseFloat(playerHomeLocationValues[2]),
+                Float.parseFloat(playerHomeLocationValues[3]),
+                Float.parseFloat(playerHomeLocationValues[4])
             );
 
             allPlayerHomes.add(new Home(UUID.fromString(playerUUID), playerHomeName, playerHomeLocation));
@@ -135,7 +136,12 @@ public class Database {
         connection.createStatement().executeUpdate("INSERT INTO Homes(UUID, name, location) VALUES ('" + playerUUID.toString() + "', '" + name + "', '" + loc + "')");
         
         Home home = new Home(playerUUID, name, location);
-        cachedPlayerHomeNames.get(playerUUID).add(home.getName());
+        try { 
+            cachedPlayerHomeNames.get(playerUUID).add(home.getName()); 
+        } catch (Exception e) {
+
+            cachedPlayerHomeNames.put(playerUUID, new ArrayList<String>(Arrays.asList(home.getName())));
+        }
         return home;
     }
 

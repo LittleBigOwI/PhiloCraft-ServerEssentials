@@ -18,7 +18,13 @@ public class HomesCommand implements CommandExecutor, TabCompleter {
         if (sender instanceof Player && label.equalsIgnoreCase("homes")) {
             
             Player player = (Player) sender;
-            ArrayList<String> playerHomeNames = ServerEssentials.database.cachedPlayerHomeNames.get(player.getUniqueId());
+            ArrayList<String> playerHomeNames = new ArrayList<String>();
+            try { playerHomeNames = ServerEssentials.database.cachedPlayerHomeNames.get(player.getUniqueId()); } catch (Exception e) {}
+
+            if(playerHomeNames == null) {
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aYou don't have any homes."));
+                return true;
+            }
 
             StringBuffer homelist = new StringBuffer();
             homelist.append(ChatColor.translateAlternateColorCodes('&', "&eHomes&6[&e" + Integer.toString(playerHomeNames.size()) + "&6]&7: &6"));

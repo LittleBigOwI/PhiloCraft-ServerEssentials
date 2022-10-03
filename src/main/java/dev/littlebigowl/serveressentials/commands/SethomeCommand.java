@@ -26,13 +26,13 @@ public class SethomeCommand implements CommandExecutor, TabCompleter {
         if (sender instanceof Player && label.equalsIgnoreCase("sethome")) {
 
             Player player = (Player) sender;
-            ArrayList<String> playerHomeNames = new ArrayList<>();
+            ArrayList<String> playerHomeNames = new ArrayList<String>();
             try { playerHomeNames = ServerEssentials.database.cachedPlayerHomeNames.get(player.getUniqueId()); } catch (Exception e) {}
             
             if(args.length == 1) {
                 if(player.getWorld().getEnvironment().equals(World.Environment.NORMAL)){
 
-                    if(playerHomeNames.contains(args[0])) {
+                    if(playerHomeNames != null && playerHomeNames.contains(args[0])) {
 
                         TextComponent context = new TextComponent(ChatColor.translateAlternateColorCodes('&', "&e&lHold on! &r&eYou are about to override another home. Proceed? "));
                         TextComponent accept = new TextComponent(ChatColor.translateAlternateColorCodes('&', "&6[&a✔&6] "));
@@ -49,7 +49,7 @@ public class SethomeCommand implements CommandExecutor, TabCompleter {
 
                         player.spigot().sendMessage(finalMessage.create());
                     } else {
-                        if(!(playerHomeNames.size() < 8)){
+                        if(playerHomeNames != null && playerHomeNames.size() >= 8){
                             player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYou don't have any homes left."));
                             return true;
                         }
