@@ -1,5 +1,7 @@
 package dev.littlebigowl.serveressentials.events;
 
+import java.util.Objects;
+
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.core.LogEvent;
@@ -71,22 +73,22 @@ public class LogFilter extends AbstractFilter {
         
         if(label == "play") {
 
-            String audio = event.getOption("audio").getAsString();
-            Bukkit.getLogger().info("\u001b[38;5;43m@Bot \u001b[38;5;248m» \u001b[37;1m\u001b[3m" + event.getMember().getEffectiveName() + "\u001b[0m\u001b[37;1m issued bot command /\u001b[3m" + label + " " + audio + "\u001b[0m");
+            String audio = Objects.requireNonNull(event.getOption("audio")).getAsString();
+            Bukkit.getLogger().info("\u001b[38;5;43m@Bot \u001b[38;5;248m» \u001b[37;1m\u001b[3m" + Objects.requireNonNull(event.getMember()).getEffectiveName() + "\u001b[0m\u001b[37;1m issued bot command /\u001b[3m" + label + " " + audio + "\u001b[0m");
 
         } else if (label == "queue") {
 
-            String page = event.getOption("page").getAsString();
-            Bukkit.getLogger().info("\u001b[38;5;43m@Bot \u001b[38;5;248m» \u001b[37;1m\u001b[3m" + event.getMember().getEffectiveName() + "\u001b[0m\u001b[37;1m issued bot command /\u001b[3m" + label + " " + page + "\u001b[0m");
+            String page = Objects.requireNonNull(event.getOption("page")).getAsString();
+            Bukkit.getLogger().info("\u001b[38;5;43m@Bot \u001b[38;5;248m» \u001b[37;1m\u001b[3m" + Objects.requireNonNull(event.getMember()).getEffectiveName() + "\u001b[0m\u001b[37;1m issued bot command /\u001b[3m" + label + " " + page + "\u001b[0m");
 
         } else if (label == "remove") {
 
-            String index = event.getOption("index").getAsString();
-            Bukkit.getLogger().info("\u001b[38;5;43m@Bot \u001b[38;5;248m» \u001b[37;1m\u001b[3m" + event.getMember().getEffectiveName() + "\u001b[0m\u001b[37;1m issued bot command /\u001b[3m" + label + " " + index + "\u001b[0m");
+            String index = Objects.requireNonNull(event.getOption("index")).getAsString();
+            Bukkit.getLogger().info("\u001b[38;5;43m@Bot \u001b[38;5;248m» \u001b[37;1m\u001b[3m" + Objects.requireNonNull(event.getMember()).getEffectiveName() + "\u001b[0m\u001b[37;1m issued bot command /\u001b[3m" + label + " " + index + "\u001b[0m");
 
         } else {
 
-            Bukkit.getLogger().info("\u001b[38;5;43m@Bot \u001b[38;5;248m» \u001b[37;1m\u001b[3m" + event.getMember().getEffectiveName() + "\u001b[0m\u001b[37;1m issued bot command /\u001b[3m" + label + "\u001b[0m");
+            Bukkit.getLogger().info("\u001b[38;5;43m@Bot \u001b[38;5;248m» \u001b[37;1m\u001b[3m" + Objects.requireNonNull(event.getMember()).getEffectiveName() + "\u001b[0m\u001b[37;1m issued bot command /\u001b[3m" + label + "\u001b[0m");
 
         }
 

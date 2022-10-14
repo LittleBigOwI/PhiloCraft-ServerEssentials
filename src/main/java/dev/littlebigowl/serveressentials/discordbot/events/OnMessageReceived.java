@@ -3,6 +3,8 @@ package dev.littlebigowl.serveressentials.discordbot.events;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import java.util.Objects;
+
 import javax.annotation.Nonnull;
 
 import org.bukkit.Bukkit;
@@ -24,11 +26,11 @@ public class OnMessageReceived extends ListenerAdapter {
 
             for (Player player : Bukkit.getOnlinePlayers()) {
                 
-                String message = ChatColor.translateAlternateColorCodes('&', "&9@" + event.getMember().getEffectiveName() + " &7»&f " + event.getMessage().getContentDisplay());
+                String message = ChatColor.translateAlternateColorCodes('&', "&9@" + Objects.requireNonNull(event.getMember()).getEffectiveName() + " &7»&f " + event.getMessage().getContentDisplay());
                 player.sendMessage(message);
             }
-
-            Bukkit.getLogger().info("\u001b[38;5;27m@" + event.getMember().getEffectiveName() + " \u001b[38;5;248m»\u001b[37;1m " + event.getMessage().getContentDisplay() + "\u001b[0m");
+            
+            Bukkit.getLogger().info("\u001b[38;5;27m@" + Objects.requireNonNull(event.getMember()).getEffectiveName() + " \u001b[38;5;248m»\u001b[37;1m " + event.getMessage().getContentDisplay() + "\u001b[0m");
         }
     }
 }

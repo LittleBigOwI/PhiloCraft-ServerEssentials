@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.managers.AudioManager;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Objects;
 
 import javax.annotation.Nonnull;
 
@@ -18,16 +19,16 @@ public class PlayCommand extends ListenerAdapter {
     public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
 
         if(event.getName().equals("play")) {
-            if(!event.getMember().getVoiceState().inAudioChannel()) { event.reply("You need to be in a voice channel for this command to work.").queue(); return;}
+            if(!Objects.requireNonNull(Objects.requireNonNull(event.getMember()).getVoiceState()).inAudioChannel()) { event.reply("You need to be in a voice channel for this command to work.").queue(); return;}
 
-            if(!event.getGuild().getSelfMember().getVoiceState().inAudioChannel()) {
-                final AudioManager audioManager = event.getGuild().getAudioManager();
-                final VoiceChannel memberChannel = (VoiceChannel) event.getMember().getVoiceState().getChannel();
+            if(!Objects.requireNonNull(Objects.requireNonNull(Objects.requireNonNull(event.getGuild()).getSelfMember()).getVoiceState()).inAudioChannel()) {
+                final AudioManager audioManager = Objects.requireNonNull(event.getGuild()).getAudioManager();
+                final VoiceChannel memberChannel = (VoiceChannel) Objects.requireNonNull(Objects.requireNonNull(event.getMember()).getVoiceState()).getChannel();
 
                 audioManager.openAudioConnection(memberChannel);
             }
 
-            String link = event.getOption("audio").getAsString();
+            String link = Objects.requireNonNull(event.getOption("audio")).getAsString();
 
             if(!isUrl(link)){
                 link = "ytsearch:" + link + " audio";

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Objects;
 import java.awt.Color;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
@@ -57,7 +57,7 @@ public class PlayerManager {
                 }
 
                 EmbedBuilder embed = new EmbedBuilder()
-                    .setDescription("Queued [" + audioTitle + "](" + track.getInfo().uri + ") | " + event.getMember().getAsMention())
+                    .setDescription("Queued [" + audioTitle + "](" + track.getInfo().uri + ") | " + Objects.requireNonNull(event.getMember()).getAsMention())
                     .setColor(new Color(0x5865f2));
                 
                 event.replyEmbeds(embed.build()).queue();
@@ -75,7 +75,7 @@ public class PlayerManager {
                     }
 
                     EmbedBuilder embed = new EmbedBuilder()
-                        .setDescription("Queued [" + audioTitle + "](" + tracks.get(0).getInfo().uri + ") | " + event.getMember().getAsMention())
+                        .setDescription("Queued [" + audioTitle + "](" + tracks.get(0).getInfo().uri + ") | " + Objects.requireNonNull(event.getMember()).getAsMention())
                         .setColor(new Color(0x5865f2));
                 
                     event.replyEmbeds(embed.build()).queue();
@@ -201,7 +201,7 @@ public class PlayerManager {
         }
 
         if(musicManager.isPlaying()) {
-            event.replyEmbeds(new EmbedBuilder().setDescription("Now playing [" + trackTitle + "](" + track.getInfo().uri + ") | " + event.getMember().getAsMention()).setColor(new Color(0x5865f2)).build()).queue();
+            event.replyEmbeds(new EmbedBuilder().setDescription("Now playing [" + trackTitle + "](" + track.getInfo().uri + ") | " + Objects.requireNonNull(event.getMember()).getAsMention()).setColor(new Color(0x5865f2)).build()).queue();
         } else {
             event.replyEmbeds(new EmbedBuilder().setDescription("<:Cross:969148307123359754> Nothing is playing.").setColor(new Color(0x5865f2)).build()).queue();
         }
@@ -231,7 +231,7 @@ public class PlayerManager {
                 trackTitle = trackTitle.substring(0, 28) + "...";
             }
 
-            event.replyEmbeds(new EmbedBuilder().setDescription("Removed [" + trackTitle + "](" + track.getInfo().uri + ") | " + event.getMember().getAsMention()).setColor(new Color(0x5865f2)).build()).queue();
+            event.replyEmbeds(new EmbedBuilder().setDescription("Removed [" + trackTitle + "](" + track.getInfo().uri + ") | " + Objects.requireNonNull(event.getMember()).getAsMention()).setColor(new Color(0x5865f2)).build()).queue();
         }
     }
 

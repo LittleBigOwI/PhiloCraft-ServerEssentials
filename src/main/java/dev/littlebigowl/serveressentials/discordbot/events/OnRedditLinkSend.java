@@ -3,6 +3,7 @@ package dev.littlebigowl.serveressentials.discordbot.events;
 import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 import javax.annotation.Nonnull;
 
@@ -50,7 +51,7 @@ public class OnRedditLinkSend extends ListenerAdapter{
                         .setEmbeds(embed.build())
                         .setActionRow(
                             Button.primary(event.getMessageId(), "More Info"),
-                            Button.link(redditSubmission.getUrl(), "Link")
+                            Button.link(Objects.requireNonNull(redditSubmission.getUrl()), "Link")
                         );
                     message.queue();
 
@@ -72,7 +73,7 @@ public class OnRedditLinkSend extends ListenerAdapter{
                         .setEmbeds(embed.build())
                         .setActionRow(
                             Button.primary(event.getMessageId(), "More Info"),
-                            Button.link(redditSubmission.getUrl(), "Link")
+                            Button.link(Objects.requireNonNull(redditSubmission.getUrl()), "Link")
                         );
                     
                     message.queue();
@@ -96,7 +97,7 @@ public class OnRedditLinkSend extends ListenerAdapter{
                                 .addFile(videoInputStream, "redditVideo.mp4")
                                 .setActionRow(
                                     Button.primary(event.getMessageId(), "More Info"),
-                                    Button.link(redditSubmission.getUrl(), "Link")
+                                    Button.link(Objects.requireNonNull(redditSubmission.getUrl()), "Link")
                             );
                             
                             message.queue();

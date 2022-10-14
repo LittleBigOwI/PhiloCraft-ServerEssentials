@@ -139,7 +139,6 @@ public class Database {
         try { 
             cachedPlayerHomeNames.get(playerUUID).add(home.getName()); 
         } catch (Exception e) {
-
             cachedPlayerHomeNames.put(playerUUID, new ArrayList<String>(Arrays.asList(home.getName())));
         }
         return home;

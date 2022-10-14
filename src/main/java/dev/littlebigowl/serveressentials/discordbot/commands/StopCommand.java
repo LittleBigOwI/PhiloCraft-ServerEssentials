@@ -5,6 +5,8 @@ import dev.littlebigowl.serveressentials.events.LogFilter;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import java.util.Objects;
+
 import javax.annotation.Nonnull;
 
 public class StopCommand extends ListenerAdapter {
@@ -13,8 +15,8 @@ public class StopCommand extends ListenerAdapter {
     public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
 
         if(event.getName().equals("stop")) {
-            if(!event.getMember().getVoiceState().inAudioChannel()) { event.reply("You need to be in a voice channel for this command to work.").queue(); return;}
-            if(!event.getGuild().getSelfMember().getVoiceState().inAudioChannel()) { event.reply("I am not in a voice channel.").queue(); }
+            if(!Objects.requireNonNull(Objects.requireNonNull(event.getMember()).getVoiceState()).inAudioChannel()) { event.reply("You need to be in a voice channel for this command to work.").queue(); return;}
+            if(!Objects.requireNonNull(Objects.requireNonNull(Objects.requireNonNull(event.getGuild()).getSelfMember()).getVoiceState()).inAudioChannel()) { event.reply("I am not in a voice channel.").queue(); }
 
             PlayerManager.getInstance().stop(event);
 
