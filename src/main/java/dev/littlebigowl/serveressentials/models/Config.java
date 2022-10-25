@@ -32,6 +32,12 @@ public class Config {
         customFile.addDefault("DatabaseName", "None");
         customFile.addDefault("DatabaseUser", "None");
         customFile.addDefault("DatabasePassword", "None");
+        customFile.addDefault("GuestRole", "None");
+        customFile.addDefault("PlayerRole", "None");
+        customFile.addDefault("PlayerPlusRole", "None");
+        customFile.addDefault("MemberRole", "None");
+        customFile.addDefault("PhiloCrafterRole", "None");
+        customFile.addDefault("PhiloCrafterPlusRole", "None");
     }
 
     public static FileConfiguration get() {

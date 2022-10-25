@@ -51,6 +51,7 @@ public final class ServerEssentials extends JavaPlugin {
                 Config.get().getString("DatabaseUser"), 
                 Config.get().getString("DatabasePassword")
             );
+            
             bot = new App();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -88,6 +89,7 @@ public final class ServerEssentials extends JavaPlugin {
         getCommand("rankinfo").setExecutor(new RankinfoCommand());
         getCommand("alteritem").setExecutor(new AlterItemCommand());
         getCommand("particle").setExecutor(new ParticleCommand());
+        getCommand("link").setExecutor(new LinkCommand());
 
         ((LoggerContext) LogManager.getContext(false)).getConfiguration().getLoggerConfig(LogManager.ROOT_LOGGER_NAME).addFilter(new LogFilter());
 
@@ -98,7 +100,16 @@ public final class ServerEssentials extends JavaPlugin {
         objective.setDisplaySlot(DisplaySlot.PLAYER_LIST);
         health.setDisplaySlot(DisplaySlot.BELOW_NAME);
 
-        TeamUtil teamUtil = new TeamUtil(scoreboard);
+        TeamUtil teamUtil = new TeamUtil(
+            scoreboard,
+            Config.get().getString("GuestRole"),
+            Config.get().getString("PlayerRole"),
+            Config.get().getString("PlayerPlusRole"),
+            Config.get().getString("MemberRole"),
+            Config.get().getString("PhiloCrafterRole"),
+            Config.get().getString("PhiloCrafterPlusRole"),
+            Config.get().getString("LinkedRole")
+            );
 
         Bukkit.getLogger().info("\u001b[38;5;206m@Server \u001b[38;5;248m» \u001b[37;1mServer started!\u001b[0m");
 
@@ -108,10 +119,16 @@ public final class ServerEssentials extends JavaPlugin {
                 Score score = objective.getScore(player.getName());
                 int playtime = Math.round(player.getStatistic(Statistic.PLAY_ONE_MINUTE)/1200);
                 score.setScore(Math.round(playtime/60));
-
-                Team team = teamUtil.getTeam(playtime);
-                team.addEntry(player.getName());
                 
+                Team team = teamUtil.getTeam(playtime);
+
+                if(!(team.hasEntry(player.getName()))) {
+                    team.addEntry(player.getName());
+                    
+                    if(ServerEssentials.database.cachedPlayerDiscords.containsKey(player.getUniqueId())) {
+                        bot.updateRoles(player, playtime, Config.get().getString("GuildID"));
+                    }
+                }
                 TeamUtil.updatePlayerTablist(player);
                 player.setScoreboard(scoreboard);
             }

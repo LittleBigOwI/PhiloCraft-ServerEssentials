@@ -44,8 +44,9 @@ public class SethomeCommand implements CommandExecutor, TabCompleter {
                         accept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/sethome " + args[0] + " override"));
                         deny.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/sethome " + args[0] + " revoke"));
 
-                        ComponentBuilder finalMessage = new ComponentBuilder(context);
-                        finalMessage.append(accept).append(deny);
+                        ComponentBuilder finalMessage = new ComponentBuilder(context)
+                            .append(accept)
+                            .append(deny);
 
                         player.spigot().sendMessage(finalMessage.create());
                     } else {

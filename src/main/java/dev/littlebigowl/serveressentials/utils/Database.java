@@ -13,6 +13,8 @@ import java.util.Arrays;
 
 import java.io.IOException;
 
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -24,8 +26,11 @@ import dev.littlebigowl.serveressentials.models.Submission;
 public class Database {
     
     public HashMap<UUID, ArrayList<String>> cachedPlayerHomeNames = new HashMap<>();
-    public HashMap<UUID, Particle> cachedPlayerParticles = new HashMap<>();
     public HashMap<String, Submission> cachedPlayerSubmissions = new HashMap<>();
+    public HashMap<UUID, Particle> cachedPlayerParticles = new HashMap<>();
+    public BidiMap<UUID, String> cachedPlayerDiscords = new DualHashBidiMap<>();
+    public HashMap<UUID, String> cachedPlayerCodes = new HashMap<>();
+    public HashMap<String, String> playerRoles = new HashMap<>();
     
     private Connection connection;
     private String host;
@@ -105,6 +110,20 @@ public class Database {
             );
 
             cachedPlayerSubmissions.put(results.getString("ID"), submission);
+        }
+
+        statement = connection.prepareStatement("SELECT * FROM Links");
+        results = statement.executeQuery();
+
+        while(results.next()) {
+            cachedPlayerCodes.put(UUID.fromString(results.getString("UUID")), results.getString("code"));
+        }
+
+        statement = connection.prepareStatement("SELECT * FROM Accounts");
+        results = statement.executeQuery();
+
+        while(results.next()) {
+            cachedPlayerDiscords.put(UUID.fromString(results.getString("UUID")), results.getString("ID"));
         }
 
     }
@@ -263,4 +282,37 @@ public class Database {
 
     }
 
+    //!Links
+    public void setupLink(UUID playerUUID, String code) throws SQLException {
+        connection.createStatement().executeUpdate("INSERT INTO Links VALUES('" + playerUUID + "', '" + code + "')");
+        cachedPlayerCodes.put(playerUUID, code);
+    }
+
+    public boolean completeLink(String id, String code) throws SQLException {
+        
+        if(!cachedPlayerCodes.containsValue(code)) {
+            return false;
+        }
+        
+        PreparedStatement statement = connection.prepareStatement("SELECT UUID FROM Links WHERE code='" + code + "'");
+        statement.setMaxRows(1);
+        ResultSet result = statement.executeQuery();
+        
+        
+
+        if(result.isBeforeFirst()) {
+            result.next();
+            UUID playerUUID = UUID.fromString(result.getString("UUID"));
+
+            connection.createStatement().executeUpdate("DELETE FROM Links WHERE code='" + code + "'");
+            connection.createStatement().executeUpdate("INSERT INTO Accounts VALUES('" + playerUUID + "', '" + id + "')");
+
+            cachedPlayerDiscords.put(playerUUID, id);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
+

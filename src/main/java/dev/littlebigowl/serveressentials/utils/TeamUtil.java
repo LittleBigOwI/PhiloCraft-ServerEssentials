@@ -3,6 +3,8 @@ package dev.littlebigowl.serveressentials.utils;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
+import dev.littlebigowl.serveressentials.ServerEssentials;
+
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -22,7 +24,7 @@ public class TeamUtil {
     private Team playerTeam;
     private Team guestTeam;
 
-    public TeamUtil(Scoreboard scoreboard) {
+    public TeamUtil(Scoreboard scoreboard, String guestRole, String playerRole, String playerPlusRole, String memberRole, String pcRole, String pcPlusRole, String linkedRole) {
         this.scoreboard = scoreboard;
     
         this.pcPlusTeam = this.scoreboard.registerNewTeam("04Philocrafter+");
@@ -31,6 +33,14 @@ public class TeamUtil {
         this.playerPlusTeam = this.scoreboard.registerNewTeam("07Player+");
         this.playerTeam = this.scoreboard.registerNewTeam("08Player");
         this.guestTeam = this.scoreboard.registerNewTeam("09Guest");
+
+        ServerEssentials.database.playerRoles.put("guestTeam", guestRole);
+        ServerEssentials.database.playerRoles.put("playerTeam", playerRole);
+        ServerEssentials.database.playerRoles.put("playerPlusTeam", playerPlusRole);
+        ServerEssentials.database.playerRoles.put("memberTeam", memberRole);
+        ServerEssentials.database.playerRoles.put("pcTeam", pcRole);
+        ServerEssentials.database.playerRoles.put("pcPlusTeam", pcPlusRole);
+        ServerEssentials.database.playerRoles.put("linked", linkedRole);
 
         setup();
     }
@@ -52,9 +62,9 @@ public class TeamUtil {
     }
 
     public Team getTeam(int playtime) {
-        if (playtime >= 300 && playtime < 1500) {
+        if (playtime >= 300 && playtime < 1020) { //300 & 1500
             return playerTeam;
-        } else if (playtime >= 1500 && playtime < 5000) {
+        } else if (playtime >= 1020 && playtime < 5000) { //1500 & 5000
             return playerPlusTeam;
         } else if (playtime >= 5000 && playtime < 10000) {
             return memberTeam;
@@ -67,10 +77,26 @@ public class TeamUtil {
         }
     }
 
+    public static String getTeamName(int playtime) {
+        if (playtime >= 300 && playtime < 1020) {
+            return "playerTeam";
+        } else if (playtime >= 1020 && playtime < 5000) {
+            return "playerPlusTeam";
+        } else if (playtime >= 5000 && playtime < 10000) {
+            return "memberTeam";
+        } else if (playtime >= 10000 && playtime < 30000) {
+            return "pcTeam";
+        } else if (playtime >= 30000) {
+            return "pcPlusTeam";
+        } else {
+            return "guestTeam";
+        }
+    }
+
     public static String getTeamColor(int playtime) {
-        if (playtime >= 300 && playtime < 1500) {
+        if (playtime >= 300 && playtime < 1020) {
             return "&3";
-        } else if (playtime >= 1500 && playtime < 5000) {
+        } else if (playtime >= 1020 && playtime < 5000) {
             return "&3";
         } else if (playtime >= 5000 && playtime < 10000) {
             return "&b";
@@ -84,9 +110,9 @@ public class TeamUtil {
     }
 
     public static String getTerminalTeamColor(int playtime) {
-        if (playtime >= 300 && playtime < 1500) {
+        if (playtime >= 300 && playtime < 1020) {
             return "\u001b[38;5;30m";
-        } else if (playtime >= 1500 && playtime < 5000) {
+        } else if (playtime >= 1020 && playtime < 5000) {
             return "\u001b[38;5;30m";
         } else if (playtime >= 5000 && playtime < 10000) {
             return "\u001b[38;5;51m";

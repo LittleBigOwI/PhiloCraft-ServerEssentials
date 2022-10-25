@@ -48,3 +48,6 @@ commands:
   particle:
     description: Set a particle trail
     usage: /<command> <set> <particle>
+  link:
+    description: generates a random access code to link your discord account to your profile
+    usage: /<command>
