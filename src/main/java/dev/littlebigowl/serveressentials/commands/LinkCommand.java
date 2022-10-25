@@ -75,8 +75,8 @@ public class LinkCommand implements CommandExecutor, TabCompleter{
             }
 
             TextComponent startText = new TextComponent(ChatColor.translateAlternateColorCodes('&', "&aYour link code is "));
-            TextComponent codeText = new TextComponent(ChatColor.translateAlternateColorCodes('&', "&6" + code + " &a"));
-            TextComponent endText = new TextComponent(ChatColor.translateAlternateColorCodes('&', ". Go to the discord and enter your code using the /link command."));
+            TextComponent codeText = new TextComponent(ChatColor.translateAlternateColorCodes('&', "&6" + code));
+            TextComponent endText = new TextComponent(ChatColor.translateAlternateColorCodes('&', "&a. Go to the discord and enter your code using the /link command."));
 
             codeText.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Copy to chatbox")));
             codeText.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, code));

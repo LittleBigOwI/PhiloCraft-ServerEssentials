@@ -168,6 +168,6 @@ public class TeamUtil {
         String serverGradientName = "&x&1&d&6&8&f&b&lP&x&2&b&7&2&f&b&lh&x&3&9&7&c&f&b&li&x&4&6&8&6&f&c&ll&x&5&4&9&0&f&c&lo&x&6&2&9&9&f&c&lC&x&7&0&a&3&f&c&lr&x&7&d&a&d&f&d&la&x&8&b&b&7&f&d&lf&x&9&9&c&1&f&d&lt";
 
         player.setPlayerListHeader(ChatColor.translateAlternateColorCodes('&', "\n"+ serverGradientName +"\n&7Welcome, &e"+player.getName()));
-        player.setPlayerListFooter(ChatColor.translateAlternateColorCodes('&', "\n&7Ping: &a" + ping + " &7Online: &b" + players + " &7MSPT: &a" + mspt + " &7TPS: &a" + tps + "\n&9Discord &f» &7discord.gg/MwvaMCaFTf" + "\n&aStore &f» &7store.littlebigowl.dev"));
+        player.setPlayerListFooter(ChatColor.translateAlternateColorCodes('&', "\n&7Ping: &a" + ping + " &7Online: &b" + players + " &7MSPT: &a" + mspt + " &7TPS: &a" + tps + "\n&9Discord &f» &7discord.gg/F2upgYUDFa" + "\n&aStore &f» &7store.littlebigowl.dev"));
     }
 }
