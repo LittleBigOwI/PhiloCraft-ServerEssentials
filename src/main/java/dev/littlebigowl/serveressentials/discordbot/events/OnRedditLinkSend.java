@@ -1,8 +1,8 @@
 package dev.littlebigowl.serveressentials.discordbot.events;
 
 import java.awt.Color;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Objects;
 
 import javax.annotation.Nonnull;
@@ -79,35 +79,27 @@ public class OnRedditLinkSend extends ListenerAdapter{
                     message.queue();
 
                 } else if (redditSubmission.getPermalink().contains("v.redd.it")) {
-                    InputStream videoInputStream;
+                    
+                    String submissionVideo;
                     try {
-                        videoInputStream = redditSubmission.getVideo(redditLink);
-                    } catch (Exception e) {
-                        videoInputStream = null;
-                    }
-
-                    if(videoInputStream == null) {
-                        System.out.println("Something went wrong 4.");
+                        submissionVideo = redditSubmission.downloadMedia(redditLink);
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
                         return;
                     }
                     
-                    try {
-                        if(redditSubmission.getVideoDuration(redditLink) <= 30) {
-                            MessageAction message = event.getChannel().sendMessage("**From : " + event.getAuthor().getAsTag() + "**")
-                                .addFile(videoInputStream, "redditVideo.mp4")
-                                .setActionRow(
-                                    Button.primary(event.getMessageId(), "More Info"),
-                                    Button.link(Objects.requireNonNull(redditSubmission.getUrl()), "Link")
-                            );
+                    try {     
+                        MessageAction message = event.getChannel().sendMessage("**From : " + event.getAuthor().getAsTag() + "**")
+                            .addFile(new File(submissionVideo), "reddit.mp4")
+                            .setActionRow(
+                                Button.primary(event.getMessageId(), "More Info"),
+                                Button.link(Objects.requireNonNull(redditSubmission.getUrl()), "Link")
+                        );
                             
-                            message.queue();
-                        } else {
-                            event.getChannel().sendMessage("** From : " + event.getAuthor().getAsTag() + "**\n*File is too large to upload*\n" + event.getMessage().getContentRaw()).queue();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        message.queue();         
+                    } catch (Exception e) {
+                        event.getChannel().sendMessage("** From : " + event.getAuthor().getAsTag() + "**\n*File is too large to upload*\n" + event.getMessage().getContentRaw()).queue();
                     }
-                    
                 }
 
                 try {

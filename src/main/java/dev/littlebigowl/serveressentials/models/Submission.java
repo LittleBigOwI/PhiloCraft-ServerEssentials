@@ -1,6 +1,7 @@
 package dev.littlebigowl.serveressentials.models;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -14,6 +15,10 @@ import com.google.gson.JsonObject;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+
+import org.apache.commons.io.FileUtils;
+import org.bukkit.Bukkit;
+
 import java.util.ArrayList;
 
 public class Submission {
@@ -171,9 +176,38 @@ public class Submission {
         return data.get("selftext").getAsString();
     }
 
-    public InputStream getVideo(String url) throws IOException {
+    public String downloadMedia(String url) throws IOException {
         JsonObject data = this.getData(url).get(0);
-        return new URL(data.get("media").getAsJsonObject().get("reddit_video").getAsJsonObject().get("fallback_url").getAsString()).openStream();
+
+        InputStream videoInputStream = new URL(data.get("media").getAsJsonObject().get("reddit_video").getAsJsonObject().get("fallback_url").getAsString()).openStream();
+
+        String res = data.get("media").getAsJsonObject().get("reddit_video").getAsJsonObject().get("fallback_url").getAsString().split(".mp4")[0].split("DASH_")[1];
+        InputStream audioInputStream = new URL(data.get("media").getAsJsonObject().get("reddit_video").getAsJsonObject().get("fallback_url").getAsString().replace("DASH_" + res, "DASH_audio")).openStream();
+
+        File mediaFile = new File(Bukkit.getServer().getPluginManager().getPlugin("ServerEssentials").getDataFolder() + "\\videos\\" + "media.mp4");
+        FileUtils.copyInputStreamToFile(videoInputStream, mediaFile);
+        File audioFile = new File(Bukkit.getServer().getPluginManager().getPlugin("ServerEssentials").getDataFolder() + "\\videos\\" + "audio.mp4");
+        FileUtils.copyInputStreamToFile(audioInputStream, audioFile);
+
+        String[] cmd = new String[] {
+            "ffmpeg",
+            "-y",
+            "-i", 
+            audioFile.getAbsolutePath().toString(), 
+            "-i",
+            mediaFile.getAbsolutePath().toString(),
+            "-acodec",
+            "copy",
+            "-vcodec",
+            "copy",
+            audioFile.getAbsolutePath().toString().replace("audio.mp4", "video.mp4")
+        };
+
+        ProcessBuilder pb = new ProcessBuilder(cmd);
+        Bukkit.getLogger().info(res);
+        pb.start();
+
+        return audioFile.getAbsolutePath().toString().replace("audio.mp4", "video.mp4");
     }
 
     public int getVideoDuration(String url) throws IOException {
