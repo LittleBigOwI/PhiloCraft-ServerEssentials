@@ -15,6 +15,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import dev.littlebigowl.serveressentials.ServerEssentials;
+import dev.littlebigowl.serveressentials.events.LogFilter;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -91,6 +92,7 @@ public class LinkCommand implements CommandExecutor, TabCompleter{
             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThis command is only usable by players."));
         }
 
+        LogFilter.logCommand(sender, label, args);
         return true;
     }
 
