@@ -58,7 +58,7 @@ public final class ServerEssentials extends JavaPlugin {
         }
 
         WebhookMessageBuilder builder = new WebhookMessageBuilder();
-        builder.addEmbeds(new WebhookEmbedBuilder().setColor(0x00ff00).setDescription("<:servericon:987016664799395900> **Server started.**").build());
+        builder.addEmbeds(new WebhookEmbedBuilder().setColor(0x00ff00).setDescription("<:servericon:1034440149918023741> **Server started.**").build());
         builder.setAvatarUrl("https://preview.redd.it/1wo65al6iox71.png?width=640&crop=smart&auto=webp&s=e9aab23333f9556cbeaa37587002dc9d7181137f");
         builder.setUsername("PhiloCraft");
 
