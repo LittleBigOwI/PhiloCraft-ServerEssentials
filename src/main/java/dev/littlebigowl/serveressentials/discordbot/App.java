@@ -29,7 +29,7 @@ public final class App {
     public JDA bot;
     public App() throws LoginException {
 
-        JDA bot = JDABuilder.create(Config.get().getString("BotToken"), GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_EMOJIS)
+        JDA bot = JDABuilder.create(Config.get().getString("BotToken"), GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_EMOJIS, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS)
                 .enableCache(CacheFlag.VOICE_STATE)
                 .setActivity(Activity.streaming(Bukkit.getOnlinePlayers().size() + " players online!", "https://twitch.tv/littlebigowi"))
                 .build();
