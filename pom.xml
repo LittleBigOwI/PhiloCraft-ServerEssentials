@@ -6,7 +6,7 @@
 
     <groupId>dev.littlebigowl</groupId>
     <artifactId>ServerEssentials</artifactId>
-    <version>7.3.2</version>
+    <version>7.3.3</version>
     <packaging>jar</packaging>
 
     <name>ServerEssentials</name>
