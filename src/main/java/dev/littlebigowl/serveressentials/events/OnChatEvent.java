@@ -1,10 +1,7 @@
 package dev.littlebigowl.serveressentials.events;
 
-import club.minnced.discord.webhook.WebhookClient;
-import club.minnced.discord.webhook.WebhookClientBuilder;
-import club.minnced.discord.webhook.send.WebhookMessage;
-import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import dev.littlebigowl.serveressentials.models.Config;
+import dev.littlebigowl.serveressentials.utils.ServerWebHook;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -34,9 +31,9 @@ public class OnChatEvent implements Listener {
         } else if (playtime >= 5000 && playtime < 10000) {
             prefix = "&f[&bM&f]&b";
         } else if (playtime >= 10000 && playtime < 30000) {
-            prefix = "&f[&6KC&f]&6";
+            prefix = "&f[&6PC&f]&6";
         } else if (playtime >= 30000) {
-            prefix = "&f[&6KC+&f]&6";
+            prefix = "&f[&6PC+&f]&6";
         } else {
             prefix = "&f[&7G&f]&7";
         }
@@ -53,17 +50,13 @@ public class OnChatEvent implements Listener {
             }
         }
 
-        WebhookMessageBuilder builder = new WebhookMessageBuilder();
-        builder.setContent(event.getMessage());
-        builder.setAvatarUrl("https://minotar.net/avatar/" + player.getName() + ".png");
-        builder.setUsername(player.getName());
-
-        WebhookMessage message = builder.build();
-
-        WebhookClientBuilder webBuilder = new WebhookClientBuilder(Config.get().getString("DiscordWebhookURL"));
-        WebhookClient client = webBuilder.build();
-        client.send(message);
-
+        ServerWebHook serverWebHook = new ServerWebHook(
+            Config.get().getString("DiscordWebhookURL"),
+            player.getName(),
+            "https://minotar.net/avatar/" + player.getName() + ".png"
+        );
+        serverWebHook.sendMessage(event.getMessage());
+        
         event.setFormat(ChatColor.translateAlternateColorCodes('&', prefix + " %s " + separator + " %s "));
     }
 }

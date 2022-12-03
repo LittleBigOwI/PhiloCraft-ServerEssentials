@@ -59,10 +59,13 @@ public class OnReadyEvent extends ListenerAdapter{
             guild.upsertCommand("leave", "leave voice channel")
                 .queue();
 
-            guild.upsertCommand("online", "See who's online on the server")
+            guild.upsertCommand("online", "see who's online on the server")
                 .queue();
             
             guild.upsertCommand("link", "link your discord account to your minecraft account")
+                .queue();
+            
+            guild.upsertCommand("whitelist", "edit the server whitelist")
                 .queue();
 
         }

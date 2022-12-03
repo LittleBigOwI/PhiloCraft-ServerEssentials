@@ -1,15 +1,13 @@
 package dev.littlebigowl.serveressentials;
 
-import club.minnced.discord.webhook.WebhookClient;
-import club.minnced.discord.webhook.WebhookClientBuilder;
-import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
-import club.minnced.discord.webhook.send.WebhookMessage;
-import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import dev.littlebigowl.serveressentials.commands.*;
 import dev.littlebigowl.serveressentials.discordbot.App;
 import dev.littlebigowl.serveressentials.events.*;
 import dev.littlebigowl.serveressentials.models.Config;
+import dev.littlebigowl.serveressentials.utils.Colors;
 import dev.littlebigowl.serveressentials.utils.Database;
+import dev.littlebigowl.serveressentials.utils.Characters;
+import dev.littlebigowl.serveressentials.utils.ServerWebHook;
 import dev.littlebigowl.serveressentials.utils.TeamUtil;
 
 import org.apache.logging.log4j.LogManager;
@@ -29,12 +27,13 @@ public final class ServerEssentials extends JavaPlugin {
 
     public static Database database;
     public static HashMap<Player, Player> tpa = new HashMap<>();
+    
     private static ServerEssentials plugin;
+    private App bot;
 
     public static ServerEssentials getPlugin() {
         return plugin;
     }
-    private App bot;
 
     @Override
     public void onEnable() {
@@ -51,22 +50,17 @@ public final class ServerEssentials extends JavaPlugin {
                 Config.get().getString("DatabaseUser"), 
                 Config.get().getString("DatabasePassword")
             );
-            
             bot = new App();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        WebhookMessageBuilder builder = new WebhookMessageBuilder();
-        builder.addEmbeds(new WebhookEmbedBuilder().setColor(0x00ff00).setDescription("<:servericon:1034440149918023741> **Server started.**").build());
-        builder.setAvatarUrl("https://preview.redd.it/1wo65al6iox71.png?width=640&crop=smart&auto=webp&s=e9aab23333f9556cbeaa37587002dc9d7181137f");
-        builder.setUsername("PhiloCraft");
-
-        WebhookMessage message = builder.build();
-
-        WebhookClientBuilder webBuilder = new WebhookClientBuilder(Config.get().getString("DiscordWebhookURL"));
-        WebhookClient client = webBuilder.build();
-        client.send(message);
+        ServerWebHook serverWebHook = new ServerWebHook(
+            Config.get().getString("DiscordWebhookURL"),
+            "Server",
+            Config.get().getString("DiscordWebhookAvatarURL")
+        );
+        serverWebHook.sendEmbed(Colors.SUCCESS, Characters.SERVER_START + " **Server started.**");
 
         getServer().getPluginManager().registerEvents(new JoinEvent(), this);
         getServer().getPluginManager().registerEvents(new LeaveEvent(), this);
@@ -75,8 +69,8 @@ public final class ServerEssentials extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new OnAdvancementDoneEvent(), this);
         getServer().getPluginManager().registerEvents(new OnPlayerMove(), this);
 
-        getCommand("tpa").setExecutor(new TpaCommand(this));
-        getCommand("tpahere").setExecutor(new TpahereCommand(this));
+        getCommand("tpa").setExecutor(new TpaCommand());
+        getCommand("tpahere").setExecutor(new TpahereCommand());
         getCommand("tpaccept").setExecutor(new TpacceptCommand());
         getCommand("tpdeny").setExecutor(new TpdenyCommand());
         getCommand("tpcancel").setExecutor(new TpcancelCommand());
@@ -109,7 +103,7 @@ public final class ServerEssentials extends JavaPlugin {
             Config.get().getString("PhiloCrafterRole"),
             Config.get().getString("PhiloCrafterPlusRole"),
             Config.get().getString("LinkedRole")
-            );
+        );
 
         Bukkit.getLogger().info("\u001b[38;5;206m@Server \u001b[38;5;248m» \u001b[37;1mServer started!\u001b[0m");
 
@@ -137,20 +131,16 @@ public final class ServerEssentials extends JavaPlugin {
 
     @Override
     public void onDisable(){
-        // Plugin shutdown logic
+
         bot.stopBot();
         try { database.closeConnection(); } catch (SQLException e) {Bukkit.getLogger().info(e.toString());}
 
-        WebhookMessageBuilder builder = new WebhookMessageBuilder();
-        builder.addEmbeds(new WebhookEmbedBuilder().setColor(0xff0000).setDescription("<:servericon:1034440149918023741> **Server stopped.**").build());
-        builder.setAvatarUrl("https://preview.redd.it/1wo65al6iox71.png?width=640&crop=smart&auto=webp&s=e9aab23333f9556cbeaa37587002dc9d7181137f");
-        builder.setUsername("PhiloCraft");
-
-        WebhookMessage message = builder.build();
-
-        WebhookClientBuilder webBuilder = new WebhookClientBuilder(Config.get().getString("DiscordWebhookURL"));
-        WebhookClient client = webBuilder.build();
-        client.send(message);
+        ServerWebHook serverWebHook = new ServerWebHook(
+            Config.get().getString("DiscordWebhookURL"),
+            "Server",
+            Config.get().getString("DiscordWebhookAvatarURL")
+        );
+        serverWebHook.sendEmbed(Colors.DANGER, Characters.SERVER_STOP + " **Server stopped.**");
 
         Bukkit.getLogger().info("\u001b[38;5;206m@Server \u001b[38;5;248m» \u001b[37;1mServer stopped.\u001b[0m");
     }

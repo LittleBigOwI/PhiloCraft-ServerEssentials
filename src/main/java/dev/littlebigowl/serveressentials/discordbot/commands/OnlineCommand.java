@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import dev.littlebigowl.serveressentials.events.LogFilter;
+import dev.littlebigowl.serveressentials.utils.Colors;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ public class OnlineCommand extends ListenerAdapter {
             }
             
             if(Bukkit.getOnlinePlayers().size() == 0) { 
-                event.replyEmbeds(new EmbedBuilder().setDescription("There are no players online.").setColor(new Color(0x5865f2)).build()).queue(); 
+                event.replyEmbeds(new EmbedBuilder().setDescription("There are no players online.").setColor(new Color(Colors.DISCORD)).build()).queue(); 
                 return; 
             }
 
@@ -38,7 +39,7 @@ public class OnlineCommand extends ListenerAdapter {
             }
             embedContent.delete(embedContent.length()-2, embedContent.length());
 
-            event.replyEmbeds(new EmbedBuilder().setDescription(embedContent).setColor(new Color(0x5865f2)).setTitle("Online Players").build()).queue();
+            event.replyEmbeds(new EmbedBuilder().setDescription(embedContent).setColor(new Color(Colors.DISCORD)).setTitle("Online Players").build()).queue();
 
             LogFilter.logBotCommand(event, event.getName());
         }

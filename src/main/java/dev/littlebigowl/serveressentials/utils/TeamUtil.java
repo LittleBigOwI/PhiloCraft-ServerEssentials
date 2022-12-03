@@ -46,12 +46,12 @@ public class TeamUtil {
     }
 
     private void setup() {
-        this.pcPlusTeam.setPrefix(ChatColor.translateAlternateColorCodes('&', "&f[&6PC+&f] "));
-        this.pcTeam.setPrefix(ChatColor.translateAlternateColorCodes('&', "&f[&6PC&f] "));
-        this.memberTeam.setPrefix(ChatColor.translateAlternateColorCodes('&', "&f[&bM&f] "));
-        this.playerPlusTeam.setPrefix(ChatColor.translateAlternateColorCodes('&', "&f[&3P+&f] "));
-        this.playerTeam.setPrefix(ChatColor.translateAlternateColorCodes('&', "&f[&3P&f] "));
-        this.guestTeam.setPrefix(ChatColor.translateAlternateColorCodes('&', "&f[&7G&f] "));
+        this.pcPlusTeam.setPrefix(ChatColor.translateAlternateColorCodes('&', "&f[" + Colors.PHILOCRAFTER_PLUS + "PC+&f] "));
+        this.pcTeam.setPrefix(ChatColor.translateAlternateColorCodes('&', "&f[" + Colors.PHILOCRAFTER + "PC&f] "));
+        this.memberTeam.setPrefix(ChatColor.translateAlternateColorCodes('&', "&f[" + Colors.MEMBER + "M&f] "));
+        this.playerPlusTeam.setPrefix(ChatColor.translateAlternateColorCodes('&', "&f[" + Colors.PLAYER_PLUS + "P+&f] "));
+        this.playerTeam.setPrefix(ChatColor.translateAlternateColorCodes('&', "&f[" + Colors.PLAYER + "P&f] "));
+        this.guestTeam.setPrefix(ChatColor.translateAlternateColorCodes('&', "&f[" + Colors.GUEST + "G&f] "));
 
         this.pcPlusTeam.setColor(ChatColor.GOLD);
         this.pcTeam.setColor(ChatColor.GOLD);
@@ -62,9 +62,9 @@ public class TeamUtil {
     }
 
     public Team getTeam(int playtime) {
-        if (playtime >= 300 && playtime < 1020) { //300 & 1500
+        if (playtime >= 300 && playtime < 1500) {
             return playerTeam;
-        } else if (playtime >= 1020 && playtime < 5000) { //1500 & 5000
+        } else if (playtime >= 1500 && playtime < 5000) {
             return playerPlusTeam;
         } else if (playtime >= 5000 && playtime < 10000) {
             return memberTeam;
@@ -77,51 +77,67 @@ public class TeamUtil {
         }
     }
 
-    public static String getTeamName(int playtime) {
-        if (playtime >= 300 && playtime < 1020) {
-            return "playerTeam";
-        } else if (playtime >= 1020 && playtime < 5000) {
-            return "playerPlusTeam";
+    public static String getTeamRole(int playtime) {
+        if (playtime >= 300 && playtime < 1500) {
+            return ServerEssentials.database.playerRoles.get("playerTeam");
+        } else if (playtime >= 1500 && playtime < 5000) {
+            return ServerEssentials.database.playerRoles.get("playerPlusTeam");
         } else if (playtime >= 5000 && playtime < 10000) {
-            return "memberTeam";
+            return ServerEssentials.database.playerRoles.get("memberTeam");
         } else if (playtime >= 10000 && playtime < 30000) {
-            return "pcTeam";
+            return ServerEssentials.database.playerRoles.get("pcTeam");
         } else if (playtime >= 30000) {
-            return "pcPlusTeam";
+            return ServerEssentials.database.playerRoles.get("pcPlusTeam");
         } else {
-            return "guestTeam";
+            return ServerEssentials.database.playerRoles.get("guestTeam");
+        }
+    }
+
+    public static String getTeamPrefix(int playtime) {
+        if (playtime >= 300 && playtime < 1500) {
+            return Characters.PLAYER_PREFIX;
+        } else if (playtime >= 1500 && playtime < 5000) {
+            return Characters.PLAYER_PLUS_PREFIX;
+        } else if (playtime >= 5000 && playtime < 10000) {
+            return Characters.MEMBER_PREFIX;
+        } else if (playtime >= 10000 && playtime < 30000) {
+            return Characters.PHILOCRAFTER_PREFIX;
+        } else if (playtime >= 30000) {
+            return Characters.PHILOCRAFTER_PLUS_PREFIX;
+        } else {
+            return Characters.GUEST_PREFIX;
         }
     }
 
     public static String getTeamColor(int playtime) {
-        if (playtime >= 300 && playtime < 1020) {
-            return "&3";
-        } else if (playtime >= 1020 && playtime < 5000) {
-            return "&3";
+        if (playtime >= 300 && playtime < 1500) {
+            return Colors.PLAYER;
+        } else if (playtime >= 1500 && playtime < 5000) {
+            return Colors.PLAYER_PLUS;
         } else if (playtime >= 5000 && playtime < 10000) {
-            return "&b";
+            return Colors.MEMBER;
         } else if (playtime >= 10000 && playtime < 30000) {
-            return "&6";
+            return Colors.PHILOCRAFTER;
         } else if (playtime >= 30000) {
-            return "&6";
+            return Colors.PHILOCRAFTER_PLUS;
         } else {
-            return "&7";
+            return Colors.PHILOCRAFTER_PLUS;
         }
     }
 
     public static String getTerminalTeamColor(int playtime) {
-        if (playtime >= 300 && playtime < 1020) {
-            return "\u001b[38;5;30m";
-        } else if (playtime >= 1020 && playtime < 5000) {
-            return "\u001b[38;5;30m";
+        if (playtime >= 300 && playtime < 1500) {
+            return Colors.PLAYER_UNICODE;
+        } else if (playtime >= 1500 && playtime < 5000) {
+            return Colors.PLAYER_PLUS_UNICODE;
         } else if (playtime >= 5000 && playtime < 10000) {
-            return "\u001b[38;5;51m";
+            return Colors.MEMBER_UNICODE;
         } else if (playtime >= 10000 && playtime < 30000) {
-            return "\u001b[38;5;172m";
+            return Colors.PHILOCRAFTER_UNICODE;
         } else if (playtime >= 30000) {
-            return "\u001b[38;5;172m";
+            return Colors.PHILOCRAFTER_PLUS_UNICODE;
         } else {
-            return "\u001b[38;5;248m";
+            return Colors.GUEST_UNICODE;
         }
     }
 
@@ -165,9 +181,8 @@ public class TeamUtil {
         String players = Integer.toString(Bukkit.getOnlinePlayers().size());
         String tps = Integer.toString(Math.round((float)getTPS()[0]));
         String mspt = Float.toString((float)round(getTPS()[0], 1));
-        String serverGradientName = "&x&1&d&6&8&f&b&lP&x&2&b&7&2&f&b&lh&x&3&9&7&c&f&b&li&x&4&6&8&6&f&c&ll&x&5&4&9&0&f&c&lo&x&6&2&9&9&f&c&lC&x&7&0&a&3&f&c&lr&x&7&d&a&d&f&d&la&x&8&b&b&7&f&d&lf&x&9&9&c&1&f&d&lt";
 
-        player.setPlayerListHeader(ChatColor.translateAlternateColorCodes('&', "\n"+ serverGradientName +"\n&7Welcome, &e"+player.getName()));
-        player.setPlayerListFooter(ChatColor.translateAlternateColorCodes('&', "\n&7Ping: &a" + ping + " &7Online: &b" + players + " &7MSPT: &a" + mspt + " &7TPS: &a" + tps + "\n&9Discord &f» &7discord.gg/F2upgYUDFa" + "\n&aStore &f» &7store.littlebigowl.dev"));
+        player.setPlayerListHeader(ChatColor.translateAlternateColorCodes('&', "\n"+ Colors.SERVER_GRADIENT +"\n&7Welcome, &e"+player.getName()));
+        player.setPlayerListFooter(ChatColor.translateAlternateColorCodes('&', "\n&7Ping: &a" + ping + " &7Online: &b" + players + " &7MSPT: &a" + mspt + " &7TPS: &a" + tps + "\n&9Discord &f» &7discord.gg/F2upgYUDFa" + "\n&aStore &f» &7https://littlebigowl.dev/pages/store.html"));
     }
 }

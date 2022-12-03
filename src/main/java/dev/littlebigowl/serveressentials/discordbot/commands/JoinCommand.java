@@ -7,6 +7,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
 
 import dev.littlebigowl.serveressentials.events.LogFilter;
+import dev.littlebigowl.serveressentials.utils.Colors;
+import dev.littlebigowl.serveressentials.utils.Characters;
 
 import java.awt.*;
 import java.util.Objects;
@@ -26,7 +28,7 @@ public class JoinCommand extends ListenerAdapter {
             final VoiceChannel memberChannel = (VoiceChannel) Objects.requireNonNull(Objects.requireNonNull(event.getMember()).getVoiceState()).getChannel();
 
             audioManager.openAudioConnection(memberChannel);
-            event.replyEmbeds(new EmbedBuilder().setDescription("<:Join:937006558699724801> Joined voice channel.").setColor(new Color(0x5865f2)).build()).queue();
+            event.replyEmbeds(new EmbedBuilder().setDescription(Characters.MUSIC_JOIN + " Joined voice channel.").setColor(new Color(Colors.DISCORD)).build()).queue();
 
             LogFilter.logBotCommand(event, event.getName());
         }

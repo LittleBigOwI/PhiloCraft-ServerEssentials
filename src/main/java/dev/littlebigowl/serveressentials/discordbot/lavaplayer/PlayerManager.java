@@ -15,6 +15,7 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
+import dev.littlebigowl.serveressentials.utils.Characters;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -99,9 +100,9 @@ public class PlayerManager {
         final GuildMusicManager musicManager = this.getMusicManager(event.getGuild());
         if(!musicManager.isPaused()) {
             musicManager.pause();
-            event.replyEmbeds(new EmbedBuilder().setDescription("<:Pause:846709694612504588> Paused.").setColor(new Color(0x5865f2)).build()).queue();
+            event.replyEmbeds(new EmbedBuilder().setDescription(Characters.MUSIC_PAUSE + " Paused.").setColor(new Color(0x5865f2)).build()).queue();
         } else {
-            event.replyEmbeds(new EmbedBuilder().setDescription("<:Cross:969148307123359754> Already paused.").setColor(new Color(0x5865f2)).build()).queue();
+            event.replyEmbeds(new EmbedBuilder().setDescription(Characters.MUSIC_ERROR + " Already paused.").setColor(new Color(0x5865f2)).build()).queue();
         }
     }
 
@@ -109,9 +110,9 @@ public class PlayerManager {
         final GuildMusicManager musicManager = this.getMusicManager(event.getGuild());
         if(musicManager.isPaused()) {
             musicManager.resume();
-            event.replyEmbeds(new EmbedBuilder().setDescription("<:Play:846709694948966400> Resumed.").setColor(new Color(0x5865f2)).build()).queue();
+            event.replyEmbeds(new EmbedBuilder().setDescription(Characters.MUSIC_RESUME + " Resumed.").setColor(new Color(0x5865f2)).build()).queue();
         } else {
-            event.replyEmbeds(new EmbedBuilder().setDescription("<:Cross:969148307123359754> Already resumed.").setColor(new Color(0x5865f2)).build()).queue();
+            event.replyEmbeds(new EmbedBuilder().setDescription(Characters.MUSIC_ERROR + " Already resumed.").setColor(new Color(0x5865f2)).build()).queue();
         }
     }
 
@@ -121,9 +122,9 @@ public class PlayerManager {
         if(musicManager.isPlaying()) {
             musicManager.scheduler.clearQueue();
             musicManager.stop();
-            event.replyEmbeds(new EmbedBuilder().setDescription("<:Stop:846712942221459478> Stopped.").setColor(new Color(0x5865f2)).build()).queue();
+            event.replyEmbeds(new EmbedBuilder().setDescription(Characters.MUSIC_STOP + " Stopped.").setColor(new Color(0x5865f2)).build()).queue();
         } else {
-            event.replyEmbeds(new EmbedBuilder().setDescription("<:Cross:969148307123359754> Nothing is playing.").setColor(new Color(0x5865f2)).build()).queue();
+            event.replyEmbeds(new EmbedBuilder().setDescription(Characters.MUSIC_ERROR + " Nothing is playing.").setColor(new Color(0x5865f2)).build()).queue();
         }
     }
 
@@ -131,10 +132,10 @@ public class PlayerManager {
         final GuildMusicManager musicManager = this.getMusicManager(event.getGuild());
 
         if(musicManager.scheduler.queue.isEmpty()) {
-            event.replyEmbeds(new EmbedBuilder().setDescription("<:Cross:969148307123359754> The queue is empty.").setColor(new Color(0x5865f2)).build()).queue();
+            event.replyEmbeds(new EmbedBuilder().setDescription(Characters.MUSIC_ERROR + " The queue is empty.").setColor(new Color(0x5865f2)).build()).queue();
         } else {
             musicManager.scheduler.shuffle();
-            event.replyEmbeds(new EmbedBuilder().setDescription("<:Shuffle:936980188623958046> Shuffled.").setColor(new Color(0x5865f2)).build()).queue();
+            event.replyEmbeds(new EmbedBuilder().setDescription(Characters.MUSIC_SHUFFLE + " Shuffled.").setColor(new Color(0x5865f2)).build()).queue();
         }
     }
 
@@ -142,7 +143,7 @@ public class PlayerManager {
         final GuildMusicManager musicManager = this.getMusicManager(event.getGuild());
 
         if(musicManager.scheduler.queue.isEmpty()) {
-            event.replyEmbeds(new EmbedBuilder().setDescription("<:Cross:969148307123359754> The queue is empty.").setColor(new Color(0x5865f2)).build()).queue();
+            event.replyEmbeds(new EmbedBuilder().setDescription(Characters.MUSIC_ERROR + " The queue is empty.").setColor(new Color(0x5865f2)).build()).queue();
         } else {
             
             int pageItems = 10;
@@ -184,10 +185,10 @@ public class PlayerManager {
         
         if(!musicManager.scheduler.isLooping()) {
             musicManager.scheduler.loop(true);
-            event.replyEmbeds(new EmbedBuilder().setDescription("<:Loop:936942637473226752> Enabled looping.").setColor(new Color(0x5865f2)).build()).queue();
+            event.replyEmbeds(new EmbedBuilder().setDescription(Characters.MUSIC_LOOP + " Enabled looping.").setColor(new Color(0x5865f2)).build()).queue();
         } else {
             musicManager.scheduler.loop(false);
-            event.replyEmbeds(new EmbedBuilder().setDescription("<:Loop:936942637473226752> Disabled looping.").setColor(new Color(0x5865f2)).build()).queue();
+            event.replyEmbeds(new EmbedBuilder().setDescription(Characters.MUSIC_LOOP + " Disabled looping.").setColor(new Color(0x5865f2)).build()).queue();
         }
     }
 
@@ -203,7 +204,7 @@ public class PlayerManager {
         if(musicManager.isPlaying()) {
             event.replyEmbeds(new EmbedBuilder().setDescription("Now playing [" + trackTitle + "](" + track.getInfo().uri + ") | " + Objects.requireNonNull(event.getMember()).getAsMention()).setColor(new Color(0x5865f2)).build()).queue();
         } else {
-            event.replyEmbeds(new EmbedBuilder().setDescription("<:Cross:969148307123359754> Nothing is playing.").setColor(new Color(0x5865f2)).build()).queue();
+            event.replyEmbeds(new EmbedBuilder().setDescription(Characters.MUSIC_ERROR + " Nothing is playing.").setColor(new Color(0x5865f2)).build()).queue();
         }
     }
 
@@ -211,10 +212,10 @@ public class PlayerManager {
         final GuildMusicManager musicManager = this.getMusicManager(event.getGuild());
 
         if(musicManager.scheduler.queue.isEmpty()) {
-            event.replyEmbeds(new EmbedBuilder().setDescription("<:Cross:969148307123359754> The queue is empty.").setColor(new Color(0x5865f2)).build()).queue();
+            event.replyEmbeds(new EmbedBuilder().setDescription(Characters.MUSIC_ERROR + " The queue is empty.").setColor(new Color(0x5865f2)).build()).queue();
         } else {
             musicManager.scheduler.skip();
-            event.replyEmbeds(new EmbedBuilder().setDescription("<:Skip:846709694973607956> Skipped.").setColor(new Color(0x5865f2)).build()).queue();
+            event.replyEmbeds(new EmbedBuilder().setDescription(Characters.MUSIC_SKIP + " Skipped.").setColor(new Color(0x5865f2)).build()).queue();
         }
     }
 
@@ -222,7 +223,7 @@ public class PlayerManager {
         final GuildMusicManager musicManager = this.getMusicManager(event.getGuild());
 
         if(musicManager.scheduler.queue.size() > index || musicManager.scheduler.queue.isEmpty()) {
-            event.replyEmbeds(new EmbedBuilder().setDescription("<:Cross:969148307123359754> Index out of bounds.").setColor(new Color(0x5865f2)).build()).queue();
+            event.replyEmbeds(new EmbedBuilder().setDescription(Characters.MUSIC_ERROR + " Index out of bounds.").setColor(new Color(0x5865f2)).build()).queue();
         } else {
             AudioTrack track = musicManager.scheduler.remove(index);
             String trackTitle = track.getInfo().title;

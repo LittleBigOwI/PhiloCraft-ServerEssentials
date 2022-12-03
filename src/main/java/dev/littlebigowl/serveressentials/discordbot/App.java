@@ -4,12 +4,10 @@ import javax.security.auth.login.LoginException;
 
 import dev.littlebigowl.serveressentials.ServerEssentials;
 import dev.littlebigowl.serveressentials.discordbot.commands.*;
-import dev.littlebigowl.serveressentials.discordbot.events.OnButtonClick;
 import dev.littlebigowl.serveressentials.discordbot.events.OnGuildVoiceLeave;
 import dev.littlebigowl.serveressentials.discordbot.events.OnMessageReceived;
 import dev.littlebigowl.serveressentials.discordbot.events.OnModalSubmit;
 import dev.littlebigowl.serveressentials.discordbot.events.OnReadyEvent;
-import dev.littlebigowl.serveressentials.discordbot.events.OnRedditLinkSend;
 import dev.littlebigowl.serveressentials.models.Config;
 import dev.littlebigowl.serveressentials.utils.TeamUtil;
 import net.dv8tion.jda.api.JDA;
@@ -31,7 +29,7 @@ public final class App {
 
         JDA bot = JDABuilder.create(Config.get().getString("BotToken"), GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_EMOJIS, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS)
                 .enableCache(CacheFlag.VOICE_STATE)
-                .setActivity(Activity.streaming(Bukkit.getOnlinePlayers().size() + " players online!", "https://twitch.tv/littlebigowi"))
+                .setActivity(Activity.playing(Bukkit.getOnlinePlayers().size() + " players online!"))
                 .build();
 
         bot.addEventListener(new PlayCommand());
@@ -49,19 +47,23 @@ public final class App {
 
         bot.addEventListener(new LinkCommand());
         bot.addEventListener(new OnlineCommand());
+        bot.addEventListener(new WhitelistCommand());
 
         bot.addEventListener(new OnReadyEvent(bot));
         bot.addEventListener(new OnGuildVoiceLeave());
         bot.addEventListener(new OnMessageReceived());
-        bot.addEventListener(new OnRedditLinkSend());
-        bot.addEventListener(new OnButtonClick());
         bot.addEventListener(new OnModalSubmit(bot));
 
         this.bot = bot;
 
         new Timer().schedule(new TimerTask(){
             public void run(){
-                bot.getPresence().setActivity(Activity.streaming( Bukkit.getOnlinePlayers().size() + " players online!", "https://twitch.tv/littlebigowi"));
+                int playerCount = Bukkit.getOnlinePlayers().size();
+                if(playerCount == 1) {
+                    bot.getPresence().setActivity(Activity.playing(playerCount + " player online!"));
+                } else {
+                    bot.getPresence().setActivity(Activity.playing(playerCount + " players online!"));
+                }
             }},0,45_000);
     }
 
@@ -70,7 +72,7 @@ public final class App {
         Guild guild = Objects.requireNonNull(bot.getGuildById(Objects.requireNonNull(guildId))) ;
         Member member = guild.getMemberById(Objects.requireNonNull(ServerEssentials.database.cachedPlayerDiscords.get(player.getUniqueId())));
         
-        String roleId = Objects.requireNonNull(ServerEssentials.database.playerRoles.get(TeamUtil.getTeamName(playtime)));
+        String roleId = Objects.requireNonNull(TeamUtil.getTeamRole(playtime));
 
         guild.addRoleToMember(Objects.requireNonNull(member), Objects.requireNonNull(guild.getRoleById(roleId))).queue();
     }

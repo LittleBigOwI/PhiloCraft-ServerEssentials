@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Statistic;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import dev.littlebigowl.serveressentials.ServerEssentials;
@@ -58,7 +59,7 @@ public class OnModalSubmit extends ListenerAdapter {
                 } else {
                     playtime = Math.round(player.getStatistic(Statistic.PLAY_ONE_MINUTE)/1200);
                 }
-                String roleId = Objects.requireNonNull(ServerEssentials.database.playerRoles.get(TeamUtil.getTeamName(playtime)));
+                String roleId = Objects.requireNonNull(TeamUtil.getTeamRole(playtime));
                 String linkedRoleId = Objects.requireNonNull(ServerEssentials.database.playerRoles.get("linked"));
 
                 member.getGuild().addRoleToMember(member, Objects.requireNonNull(this.bot.getRoleById(roleId))).queue();
@@ -69,6 +70,22 @@ public class OnModalSubmit extends ListenerAdapter {
             } else {
                 event.reply("Error : Code is either incorrect or account is already linked").setEphemeral(true).queue(); 
             }
+
+        } else if(event.getModalId().equals("whitelistEdit")) {
+
+            ModalMapping commandArgs = event.getValue("whitelistInput");
+            
+            if(commandArgs == null) {
+                return;
+            }
+
+            ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
+            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(ServerEssentials.getPlugin(), () -> {
+                Bukkit.getServer().dispatchCommand(console, "whitelist " + commandArgs.getAsString());
+            });
+
+            event.reply("Whitelist edited.").setEphemeral(true).queue();
+
         } 
 
     }

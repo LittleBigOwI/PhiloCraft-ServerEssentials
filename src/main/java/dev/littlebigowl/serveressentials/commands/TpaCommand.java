@@ -19,11 +19,6 @@ import java.util.List;
 
 public class TpaCommand implements CommandExecutor, TabCompleter {
 
-    private final ServerEssentials testPlugin;
-    public TpaCommand(ServerEssentials testPlugin) {
-        this.testPlugin = testPlugin;
-    }
-
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
@@ -77,7 +72,7 @@ public class TpaCommand implements CommandExecutor, TabCompleter {
                 player.spigot().sendMessage(finalCancelMessage.create());
 
                 BukkitScheduler scheduler = Bukkit.getScheduler();
-                scheduler.runTaskLater(this.testPlugin, () -> {
+                scheduler.runTaskLater(ServerEssentials.getPlugin(), () -> {
                     if(ServerEssentials.tpa.containsKey(targetPlayer)) {
                         ServerEssentials.tpa.remove(targetPlayer);
                     }

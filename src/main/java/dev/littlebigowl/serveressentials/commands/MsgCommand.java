@@ -57,6 +57,8 @@ public class MsgCommand implements CommandExecutor, TabCompleter {
                 int targetPlaytime = Math.round(targetPlayer.getStatistic(Statistic.PLAY_ONE_MINUTE)/1200);
 
                 targetPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7[" + TeamUtil.getTeamColor(playtime) + player.getName() + " &7to " + " &cyou&7" + "] » &r" + message));
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7[" + "&cyou&7" + " &7to " + TeamUtil.getTeamColor(targetPlaytime) + targetPlayer.getName() + "] » &r" + message));
+                
                 Bukkit.getLogger().info("\u001b[38;5;248m[" + TeamUtil.getTerminalTeamColor(playtime) + player.getName() + "\u001b[38;5;248m to " + TeamUtil.getTerminalTeamColor(targetPlaytime) + targetPlayer.getName() + "\u001b[38;5;248m] » \u001b[37;1m" + message + "\u001b[0m");
 
             } else {

@@ -44,7 +44,8 @@ public class LogFilter extends AbstractFilter {
             "com.mojang.authlib.GameProfile",
             "logged in with", 
             "issued server command:",
-            "moved too quickly"
+            "moved too quickly",
+            "lost connection: Disconnected"
         };
 
         if (msg != null) {
@@ -72,24 +73,19 @@ public class LogFilter extends AbstractFilter {
     public static void logBotCommand(SlashCommandInteractionEvent event, String label) {
         
         if(label == "play") {
-
             String audio = Objects.requireNonNull(event.getOption("audio")).getAsString();
             Bukkit.getLogger().info("\u001b[38;5;43m@Bot \u001b[38;5;248m» \u001b[37;1m\u001b[3m" + Objects.requireNonNull(event.getMember()).getEffectiveName() + "\u001b[0m\u001b[37;1m issued bot command /\u001b[3m" + label + " " + audio + "\u001b[0m");
-
+        
         } else if (label == "queue") {
-
             String page = Objects.requireNonNull(event.getOption("page")).getAsString();
             Bukkit.getLogger().info("\u001b[38;5;43m@Bot \u001b[38;5;248m» \u001b[37;1m\u001b[3m" + Objects.requireNonNull(event.getMember()).getEffectiveName() + "\u001b[0m\u001b[37;1m issued bot command /\u001b[3m" + label + " " + page + "\u001b[0m");
-
+        
         } else if (label == "remove") {
-
             String index = Objects.requireNonNull(event.getOption("index")).getAsString();
             Bukkit.getLogger().info("\u001b[38;5;43m@Bot \u001b[38;5;248m» \u001b[37;1m\u001b[3m" + Objects.requireNonNull(event.getMember()).getEffectiveName() + "\u001b[0m\u001b[37;1m issued bot command /\u001b[3m" + label + " " + index + "\u001b[0m");
-
+        
         } else {
-
             Bukkit.getLogger().info("\u001b[38;5;43m@Bot \u001b[38;5;248m» \u001b[37;1m\u001b[3m" + Objects.requireNonNull(event.getMember()).getEffectiveName() + "\u001b[0m\u001b[37;1m issued bot command /\u001b[3m" + label + "\u001b[0m");
-
         }
 
     }

@@ -6,6 +6,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
 
 import dev.littlebigowl.serveressentials.events.LogFilter;
+import dev.littlebigowl.serveressentials.utils.Colors;
+import dev.littlebigowl.serveressentials.utils.Characters;
 
 import java.awt.*;
 import java.util.Objects;
@@ -25,7 +27,7 @@ public class LeaveCommand extends ListenerAdapter {
             final AudioManager audioManager = Objects.requireNonNull(event.getGuild()).getAudioManager();
 
             audioManager.closeAudioConnection();
-            event.replyEmbeds(new EmbedBuilder().setDescription("<:Leave:937006597782269954> Left voice channel.").setColor(new Color(0x5865f2)).build()).queue();
+            event.replyEmbeds(new EmbedBuilder().setDescription(Characters.MUSIC_LEAVE + " Left voice channel.").setColor(new Color(Colors.DISCORD)).build()).queue();
 
             LogFilter.logBotCommand(event, event.getName());
         }

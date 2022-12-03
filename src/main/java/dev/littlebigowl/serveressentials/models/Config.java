@@ -24,8 +24,8 @@ public class Config {
         }
 
         customFile = YamlConfiguration.loadConfiguration(file);
-        customFile.addDefault("DiscordRedditChannelID", "None");
         customFile.addDefault("DiscordWebhookURL", "None");
+        customFile.addDefault("DiscordWebhookAvatarURL", "None");
         customFile.addDefault("DiscordChannelID", "None");
         customFile.addDefault("BotToken", "None");
         customFile.addDefault("DatabaseHost", "None");
