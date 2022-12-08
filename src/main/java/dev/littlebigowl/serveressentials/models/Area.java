@@ -2,7 +2,6 @@ package dev.littlebigowl.serveressentials.models;
 
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.flowpowered.math.vector.Vector2d;
@@ -34,21 +33,17 @@ public class Area {
         return (compareVector2d(side1start, side2start) && compareVector2d(side1end, side2end)) || (compareVector2d(side1start, side2end) && compareVector2d(side1end, side2start));
     }
 
-    public Shape isTouching(Shape shape) {
+    public Vector2d[] isTouching(Shape shape) {
         boolean touching = false;
 
         int i = 0;
         int j = 0;
-        while(!(touching) && i < this.shape.getPointCount() - 1) {
-            Bukkit.getLogger().warning("[DEBUG] : Main : (" + this.shape.getPoints()[i].getX() + ", " + this.shape.getPoints()[i].getY() + "). To : " + "(" + this.shape.getPoints()[i+1].getX() + ", " + this.shape.getPoints()[i+1].getY() + ")");
-            
+        while(!(touching) && i < this.shape.getPointCount() - 1) {            
             j = 0;
             while(!(touching) && j < shape.getPointCount() - 1) {
-                Bukkit.getLogger().warning("[DEBUG] : Addon : (" + shape.getPoints()[j].getX() + ", " + shape.getPoints()[j].getY() + "). To : " + "(" + shape.getPoints()[j+1].getX() + ", " + shape.getPoints()[j+1].getY() + ")");
                 touching = compareSides(this.shape.getPoints()[i], this.shape.getPoints()[i+1], shape.getPoints()[j], shape.getPoints()[j+1]);
                 j++;
             }
-            Bukkit.getLogger().warning("[DEBUG] : Addon : (" + shape.getPoints()[3].getX() + ", " + shape.getPoints()[3].getY() + "). To : " + "(" + shape.getPoints()[0].getX() + ", " + shape.getPoints()[0].getY() + ")");
             if(!(touching)) {
                 touching = compareSides(this.shape.getPoints()[i], this.shape.getPoints()[i+1], shape.getPoints()[3], shape.getPoints()[0]);
             }
@@ -56,18 +51,22 @@ public class Area {
         }
 
         if(!(touching)) {
-            Bukkit.getLogger().warning("[DEBUG] : Main : (" + this.shape.getPoints()[this.shape.getPointCount()-1].getX() + ", " + this.shape.getPoints()[this.shape.getPointCount()-1].getY() + "). To : " + "(" + this.shape.getPoints()[0].getX() + ", " + this.shape.getPoints()[0].getY() + ")");
+            i = this.shape.getPointCount() - 1;
             j = 0;
             while(!(touching) && j < shape.getPointCount() - 1) {
-                Bukkit.getLogger().warning("[DEBUG] : Addon : (" + shape.getPoints()[j].getX() + ", " + shape.getPoints()[j].getY() + "). To : " + "(" + shape.getPoints()[j+1].getX() + ", " + shape.getPoints()[j+1].getY() + ")");
-                touching = compareSides(this.shape.getPoints()[this.shape.getPointCount() - 1], this.shape.getPoints()[0], shape.getPoints()[j], shape.getPoints()[j+1]);
+                touching = compareSides(this.shape.getPoints()[i], this.shape.getPoints()[0], shape.getPoints()[j], shape.getPoints()[j+1]);
                 j++;
             }
         }
 
-        Bukkit.getLogger().info("[DEBUG] : " + touching);
-
-        return null;
+        if(touching) {
+            if(i == this.shape.getPointCount() - 1) {
+                return new Vector2d[]{this.shape.getPoints()[i], this.shape.getPoints()[0]};
+            }
+            return new Vector2d[]{this.shape.getPoints()[i], this.shape.getPoints()[i+1]};
+        } else {
+            return null;
+        }
     }
 
     public void create(Player player) {
