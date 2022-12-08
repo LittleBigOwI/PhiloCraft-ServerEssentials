@@ -68,7 +68,7 @@ public class MsgCommand implements CommandExecutor, TabCompleter {
         } else if (sender instanceof ConsoleCommandSender || sender instanceof BlockCommandSender) {
             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThis command is only usable by players."));
         }
-
+        
         LogFilter.logCommand(sender, label, args);
         return true;
     }

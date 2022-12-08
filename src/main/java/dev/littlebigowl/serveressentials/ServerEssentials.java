@@ -19,6 +19,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.*;
 
+import de.bluecolored.bluemap.api.BlueMapAPI;
+
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Objects;
@@ -26,8 +28,9 @@ import java.util.Objects;
 public final class ServerEssentials extends JavaPlugin {
 
     public static Database database;
+    public static BlueMapAPI blueMapAPI;
     public static HashMap<Player, Player> tpa = new HashMap<>();
-    
+
     private static ServerEssentials plugin;
     private App bot;
 
@@ -84,6 +87,7 @@ public final class ServerEssentials extends JavaPlugin {
         getCommand("alteritem").setExecutor(new AlterItemCommand());
         getCommand("particle").setExecutor(new ParticleCommand());
         getCommand("link").setExecutor(new LinkCommand());
+        getCommand("area").setExecutor(new AreaCommand());
 
         ((LoggerContext) LogManager.getContext(false)).getConfiguration().getLoggerConfig(LogManager.ROOT_LOGGER_NAME).addFilter(new LogFilter());
 
@@ -104,6 +108,10 @@ public final class ServerEssentials extends JavaPlugin {
             Config.get().getString("PhiloCrafterPlusRole"),
             Config.get().getString("LinkedRole")
         );
+
+        BlueMapAPI.onEnable(api -> {
+           blueMapAPI = api;
+        });
 
         Bukkit.getLogger().info("\u001b[38;5;206m@Server \u001b[38;5;248m» \u001b[37;1mServer started!\u001b[0m");
 

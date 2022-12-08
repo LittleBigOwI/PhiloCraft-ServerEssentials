@@ -77,7 +77,6 @@ public class DelhomeCommand implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player && label.equalsIgnoreCase("delhome") && args.length == 1) {
             Player player = (Player) sender;
-            
             return ServerEssentials.database.cachedPlayerHomeNames.get(player.getUniqueId());
 
         } else if (sender instanceof Player && label.equalsIgnoreCase("delhome") && args.length == 2) {

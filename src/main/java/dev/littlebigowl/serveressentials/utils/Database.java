@@ -11,26 +11,24 @@ import java.util.HashMap;
 import java.util.UUID;
 import java.util.Arrays;
 
-import java.io.IOException;
-
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 
+import dev.littlebigowl.serveressentials.models.Area;
 import dev.littlebigowl.serveressentials.models.Home;
 import dev.littlebigowl.serveressentials.models.PlayerParticle;
-import dev.littlebigowl.serveressentials.models.Submission;
 
 public class Database {
     
     public HashMap<UUID, ArrayList<String>> cachedPlayerHomeNames = new HashMap<>();
-    public HashMap<String, Submission> cachedPlayerSubmissions = new HashMap<>();
     public HashMap<UUID, Particle> cachedPlayerParticles = new HashMap<>();
     public BidiMap<UUID, String> cachedPlayerDiscords = new DualHashBidiMap<>();
     public HashMap<UUID, String> cachedPlayerCodes = new HashMap<>();
     public HashMap<String, String> playerRoles = new HashMap<>();
+    public HashMap<UUID, ArrayList<Area>> playerAreas = new HashMap<>();
     
     private Connection connection;
     private String host;
@@ -88,28 +86,6 @@ public class Database {
 
         while (results.next()) {
             cachedPlayerParticles.put(UUID.fromString(results.getString("UUID")), Particle.valueOf(results.getString("name")));
-        }
-
-        statement = connection.prepareStatement("SELECT * FROM Submissions");
-        results = statement.executeQuery();
-
-        while (results.next()) {
-            Submission submission = new Submission(
-                results.getString("title"),
-                results.getInt("upvotes"),
-                results.getInt("comments"),
-                results.getInt("awards"),
-                Math.round(results.getDate("creationDate").getTime()),
-                results.getString("url"),
-                results.getString("permalink"),
-                results.getString("subreddit"),
-                results.getBoolean("archived"),
-                results.getBoolean("nsfw"),
-                results.getBoolean("spoiler"),
-                results.getBoolean("crosspostable")
-            );
-
-            cachedPlayerSubmissions.put(results.getString("ID"), submission);
         }
 
         statement = connection.prepareStatement("SELECT * FROM Links");
@@ -255,31 +231,6 @@ public class Database {
     public void deleteParticle(UUID playerUUID) throws SQLException {
         connection.createStatement().executeUpdate("DELETE FROM Particles WHERE UUID='" + playerUUID.toString() + "'");
         cachedPlayerParticles.remove(playerUUID);
-    }
-
-    //!Submissions
-    public void createSubmission(Submission submission, String id) throws SQLException, IOException {
-
-        connection.createStatement().executeUpdate(
-            "INSERT INTO Submissions VALUES('"
-            + id + "', '" 
-            + submission.getTitle() + "', "
-            + submission.getUpvotes() + ", "
-            + submission.getComments() + ", "
-            + submission.getAwards() + ", FROM_UNIXTIME("
-            + submission.getCreationDateUNIX() + "), '"
-            + submission.getPermalink() + "', '"
-            + submission.getUrl() + "', '"
-            + submission.getSubreddit() + "', "
-            + submission.isArchived() + ", "
-            + submission.isNSFW() + ", "
-            + submission.isSpoiler() + ", "
-            + submission.isCrosspostable()
-            + ")"
-        );
-
-        cachedPlayerSubmissions.put(id, submission);
-
     }
 
     //!Links

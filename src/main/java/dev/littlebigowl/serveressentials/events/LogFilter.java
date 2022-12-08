@@ -45,7 +45,8 @@ public class LogFilter extends AbstractFilter {
             "logged in with", 
             "issued server command:",
             "moved too quickly",
-            "lost connection: Disconnected"
+            "lost connection: Disconnected",
+            "sent expired chat"
         };
 
         if (msg != null) {

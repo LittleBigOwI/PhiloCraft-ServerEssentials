@@ -2,6 +2,7 @@ package dev.littlebigowl.serveressentials.commands;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -67,10 +68,7 @@ public class ParticleCommand implements CommandExecutor, TabCompleter{
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if(args.length == 1) {
-            ArrayList<String> possibleArgs = new ArrayList<>();
-            possibleArgs.add("set");
-            possibleArgs.add("remove");
-            return possibleArgs;
+            return Arrays.asList("set", "remove");
         } else if(args.length == 2 && args[0].equals("set")) {
             ArrayList<String> stringParticles = new ArrayList<>();
 

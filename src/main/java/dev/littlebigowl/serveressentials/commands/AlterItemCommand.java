@@ -72,10 +72,7 @@ public class AlterItemCommand implements CommandExecutor, TabCompleter{
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if(args.length == 1) {
-            ArrayList<String> possibleArgs = new ArrayList<>();
-            possibleArgs.add("name");
-            possibleArgs.add("lore");
-            return possibleArgs;
+            return Arrays.asList("name", "lore");
         } else {
             return new ArrayList<>();
         }

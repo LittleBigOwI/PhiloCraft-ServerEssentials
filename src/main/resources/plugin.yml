@@ -5,6 +5,7 @@ api-version: 1.19
 authors: [ LittleBigOwl ]
 description: A complete server configuration in one plugin
 website: https://littlebigowl.dev
+depend: [BlueMap]
 commands:
   tpa:
     description: Teleport to a player
@@ -51,3 +52,6 @@ commands:
   link:
     description: generates a random access code to link your discord account to your profile
     usage: /<command>
+  area:
+    description: creates an area on the map
+    usage: /<command> <create/expand/remove> <areaName> <color>
