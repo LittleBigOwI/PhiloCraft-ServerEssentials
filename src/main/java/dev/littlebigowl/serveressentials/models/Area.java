@@ -165,12 +165,6 @@ public class Area {
         return new Shape(newPoints);
     }
 
-    private void combine() {
-        if(chunks.size() > 1) {
-            this.shape = merge(chunks.get(chunks.size() - 1));
-        }
-    }
-
     public boolean addChunk(Shape shape) {
         if(this.getCommonSides(shape).size() == 0) {
             return false;
@@ -181,7 +175,9 @@ public class Area {
     }
 
     public void draw() {
-        combine();
+        if(this.chunks.size() > 1) {
+            this.shape = merge(this.chunks.get(this.chunks.size() - 1));
+        }
 
         ExtrudeMarker marker = ExtrudeMarker.builder()
             .label("TestName")
