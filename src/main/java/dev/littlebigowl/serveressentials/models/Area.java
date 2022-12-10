@@ -5,9 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-
 import com.flowpowered.math.vector.Vector2d;
 
 import de.bluecolored.bluemap.api.BlueMapMap;
@@ -21,11 +18,13 @@ public class Area {
     
     private String name;
     private String id;
+    private ArrayList<Shape> chunks = new ArrayList<>();
     private Shape shape;
 
     public Area(String areaName, UUID playerUUID, Shape shape) {
         this.name = areaName;
         this.id = playerUUID.toString() + "." + areaName;
+        this.chunks.add(shape);
         this.shape = shape;
     }
 
@@ -51,7 +50,7 @@ public class Area {
         return true;
     }
 
-    public ArrayList<Vector2d[]> getCommonSides(Shape shape) {
+    private ArrayList<Vector2d[]> getCommonSides(Shape shape) {
         ArrayList<Vector2d[]> commonSides = new ArrayList<>();
 
         int i = 0;
@@ -83,15 +82,15 @@ public class Area {
         return commonSides;
     }
 
-    public List<Vector2d> getArrayPoints() {
+    private List<Vector2d> getArrayPoints() {
         return new ArrayList<>(Arrays.asList(this.shape.getPoints()));
     }
 
-    public void expand(Shape shape) {
+    private Shape merge(Shape shape) {
 
         ArrayList<Vector2d[]> commonSides = this.getCommonSides(shape);
         if(commonSides.size() == 0) {
-            return;
+            return null;
         }
         
         List<Vector2d> points = this.getArrayPoints();
@@ -106,7 +105,6 @@ public class Area {
                     while(j < shape.getPointCount() && this.containsPoint(shape.getPoint(j))) {
                         j += 1;
                     }
-                    
                     if(j != shape.getPointCount()) {
                         if(j != 3) {
                             newPoints.add(shape.getPoint(j));
@@ -122,10 +120,14 @@ public class Area {
             }
             
             if(compareSides(points.get(this.shape.getPointCount() - 1), points.get(0), commonSides.get(0)[0], commonSides.get(0)[1])) {
-                i = 3;
                 newPoints.addAll(points);
-                newPoints.add(shape.getPoints()[3]);
-                newPoints.add(shape.getPoints()[0]);
+                if(compareVector2d(newPoints.get(newPoints.size() - 1), shape.getPoint(3))) {
+                    newPoints.add(shape.getPoint(0));
+                    newPoints.add(shape.getPoint(1));
+                } else {
+                    newPoints.add(shape.getPoint(3));
+                    newPoints.add(shape.getPoint(0));
+                }
             }
             
         } else if(commonSides.size() == 2) {
@@ -144,14 +146,42 @@ public class Area {
                 }
                 i += 1;
             }
-        }
 
-        for(Vector2d point : newPoints) {
-            Bukkit.getLogger().warning("[DEBUG] : (" + point.getX() + ", " + point.getY() + ")");
+            if(newPoints.size() == 0) {
+                Vector2d[] commonSide = commonSides.get(0);
+
+                int j = 0;
+                while(j < this.shape.getPointCount() && !compareVector2d(this.shape.getPoint(j), commonSide[0])) {
+                    j += 1;
+                }
+                
+                newPoints.addAll(points.subList(0, j+1));
+                newPoints.add(shape.getPoint(3));
+                newPoints.add(shape.getPoint(0));
+                newPoints.addAll(points.subList(j+1, points.size()));
+            }
+        }
+        
+        return new Shape(newPoints);
+    }
+
+    private void combine() {
+        if(chunks.size() > 1) {
+            this.shape = merge(chunks.get(chunks.size() - 1));
         }
     }
 
-    public void create(Player player) {
+    public boolean addChunk(Shape shape) {
+        if(this.getCommonSides(shape).size() == 0) {
+            return false;
+        }
+        
+        this.chunks.add(shape);
+        return true;
+    }
+
+    public void draw() {
+        combine();
 
         ExtrudeMarker marker = ExtrudeMarker.builder()
             .label("TestName")
@@ -176,6 +206,14 @@ public class Area {
 
     public String getName() {
         return this.name;
+    }
+
+    public static Area getAreaByName(UUID playerUUID, String name) {
+        ArrayList<Area> areas = ServerEssentials.database.playerAreas.get(playerUUID);
+        if(areas.get(0).getName().equals(name)) {
+            return areas.get(0);
+        }
+        return areas.get(1);
     }
 
 }
