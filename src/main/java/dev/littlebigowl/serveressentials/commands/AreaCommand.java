@@ -49,9 +49,29 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
 
                 int x = player.getLocation().getChunk().getX()*16;
                 int z = player.getLocation().getChunk().getZ()*16; //Bottom right corner of chunk
-
-                Shape shape =  new Shape(new Vector2d(x, z), new Vector2d(x, z+16), new Vector2d(x+16, z+16), new Vector2d(x+16, z)); //square
-                //Shape shape = new Shape(new Vector2d(x, z), new Vector2d(x, z+16), new Vector2d(x, z+32), new Vector2d(x+16, z+32), new Vector2d(x+32, z+32), new Vector2d(x+32, z+16), new Vector2d(x+16, x+16), new Vector2d(x+16, z));
+                
+                Shape shape = null;
+                if(name.equals("sq")) {
+                    shape =  new Shape(new Vector2d(x, z), new Vector2d(x, z+16), new Vector2d(x+16, z+16), new Vector2d(x+16, z)); //square
+                } else if(name.equals("l")) {
+                    shape = new Shape(new Vector2d(x, z), new Vector2d(x, z+16), new Vector2d(x, z+32), new Vector2d(x+16, z+32), new Vector2d(x+32, z+32), new Vector2d(x+32, z+16), new Vector2d(x+16, x+16), new Vector2d(x+16, z));
+                } else if(name.equals("l2")) {
+                    shape = new Shape(new Vector2d(x, z), new Vector2d(x, z+16), new Vector2d(x, z+32), new Vector2d(x-16, z+32), new Vector2d(x-32, z+32), new Vector2d(x-32, z+16), new Vector2d(x-16, z+16), new Vector2d(x-16, z));
+                } else if(name.equals("u")) {
+                    shape = new Shape(
+                    new Vector2d(x, z),
+                    new Vector2d(x, z+16),
+                    new Vector2d(x, z+32),
+                    new Vector2d(x+16, z+32),
+                    new Vector2d(x+32, z+32),
+                    new Vector2d(x+48, z+32),
+                    new Vector2d(x+48, z+16),
+                    new Vector2d(x+48, z),
+                    new Vector2d(x+32, z),
+                    new Vector2d(x+32, z+16),
+                    new Vector2d(x+16, z+16),
+                    new Vector2d(x+16, z));
+                }
                 Area area = new Area(name, playerUUID, shape);
                 ServerEssentials.database.playerAreas.get(playerUUID).add(area);
             

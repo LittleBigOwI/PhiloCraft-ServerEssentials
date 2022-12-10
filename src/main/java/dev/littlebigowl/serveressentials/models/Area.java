@@ -37,6 +37,20 @@ public class Area {
         return (compareVector2d(side1start, side2start) && compareVector2d(side1end, side2end)) || (compareVector2d(side1start, side2end) && compareVector2d(side1end, side2start));
     }
 
+    private boolean containsPoint(Vector2d point) {
+        Vector2d[] points = this.shape.getPoints();
+        int i = 0;
+        
+        while(i < this.shape.getPointCount() && !(compareVector2d(point, points[i]))) {
+            i += 1;
+        }
+
+        if(i == this.shape.getPointCount()) {
+            return false;
+        }   
+        return true;
+    }
+
     public ArrayList<Vector2d[]> getCommonSides(Shape shape) {
         ArrayList<Vector2d[]> commonSides = new ArrayList<>();
 
@@ -85,25 +99,55 @@ public class Area {
         if(commonSides.size() == 1) {
             int i = 0;
             while(i < this.shape.getPointCount() - 1) {
-                if(compareVector2d(points.get(i), commonSides.get(0)[0]) && compareVector2d(points.get(i+1), commonSides.get(0)[1])) {
+                if(compareSides(points.get(i), points.get(i+1), commonSides.get(0)[0], commonSides.get(0)[1])) {
                     newPoints.addAll(points.subList(0, i+1));
-                    newPoints.add(shape.getPoints()[i]);
-                    newPoints.add(shape.getPoints()[i+1]);
-                    newPoints.addAll(points.subList(i+1, this.shape.getPointCount()));  
+                    
+                    int j = 0;
+                    while(j < shape.getPointCount() && this.containsPoint(shape.getPoint(j))) {
+                        j += 1;
+                    }
+                    
+                    if(j != shape.getPointCount()) {
+                        if(j != 3) {
+                            newPoints.add(shape.getPoint(j));
+                            newPoints.add(shape.getPoint(j+1));
+                        } else {
+                            newPoints.add(shape.getPoint(j));
+                            newPoints.add(shape.getPoint(0));
+                        }
+                    }
+                    newPoints.addAll(points.subList(i+1, this.shape.getPointCount()));
                 }
                 i += 1;
             }
-
-            if(compareVector2d(points.get(this.shape.getPointCount() - 1), commonSides.get(0)[0]) && compareVector2d(points.get(0), commonSides.get(0)[1])) {
+            
+            if(compareSides(points.get(this.shape.getPointCount() - 1), points.get(0), commonSides.get(0)[0], commonSides.get(0)[1])) {
                 i = 3;
                 newPoints.addAll(points);
                 newPoints.add(shape.getPoints()[3]);
                 newPoints.add(shape.getPoints()[0]);
             }
             
-            for(Vector2d point : newPoints) {
-                Bukkit.getLogger().warning("[DEBUG] : (" + point.getX() + ", " + point.getY() + ")");
+        } else if(commonSides.size() == 2) {
+            int i = 0;
+            while(i < this.shape.getPointCount() - 2) {
+                if(compareSides(points.get(i), points.get(i+1), commonSides.get(0)[0], commonSides.get(0)[1]) && compareVector2d(points.get(i+2), commonSides.get(1)[1])) {
+                    newPoints.addAll(points.subList(0, i+1));
+                    
+                    for(Vector2d point : shape.getPoints()) {
+                        if(!this.containsPoint(point)) {
+                            newPoints.add(point);                            
+                        }
+                    }
+
+                    newPoints.addAll(points.subList(i+2, this.shape.getPointCount()));
+                }
+                i += 1;
             }
+        }
+
+        for(Vector2d point : newPoints) {
+            Bukkit.getLogger().warning("[DEBUG] : (" + point.getX() + ", " + point.getY() + ")");
         }
     }
 
