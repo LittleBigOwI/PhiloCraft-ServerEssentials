@@ -110,18 +110,14 @@ public class Area {
                     
                     if(j != shape.getPointCount()) {
                         if(j != 3) {
-                            Bukkit.getLogger().warning("here");
                             if(compareVector2d(shape.getPoint(j+1), points.get(i+1))) {
-                                Bukkit.getLogger().warning("here2");
                                 newPoints.add(shape.getPoint(3));
                                 newPoints.add(shape.getPoint(0));
                             } else {
-                                Bukkit.getLogger().warning("here3");
                                 newPoints.add(shape.getPoint(j));
                                 newPoints.add(shape.getPoint(j+1));
                             }
                         } else {
-                            Bukkit.getLogger().warning("here4 " + j);
                             if(compareVector2d(shape.getPoint(0), points.get(i+1))) {
                                 newPoints.add(shape.getPoint(2));
                                 newPoints.add(shape.getPoint(3));
@@ -139,18 +135,12 @@ public class Area {
             if(compareSides(points.get(this.shape.getPointCount() - 1), points.get(0), commonSides.get(0)[0], commonSides.get(0)[1])) {
                 newPoints.addAll(points);
                 if(compareVector2d(newPoints.get(newPoints.size() - 1), shape.getPoint(3))) {
-                    Bukkit.getLogger().warning("here5");
                     newPoints.add(shape.getPoint(0));
                     newPoints.add(shape.getPoint(1));
                 } else {
-                    Bukkit.getLogger().warning("here6");
                     newPoints.add(shape.getPoint(3));
                     newPoints.add(shape.getPoint(0));
                 }
-            }
-
-            for(Vector2d point : newPoints) {
-                Bukkit.getLogger().warning("[DEBUG] : (" + point.getX() + ", " + point.getY() + ")");
             }
             
         } else if(commonSides.size() == 2) {
