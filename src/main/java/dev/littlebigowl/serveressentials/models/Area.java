@@ -2,6 +2,7 @@ package dev.littlebigowl.serveressentials.models;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -169,8 +170,8 @@ public class Area {
                 }
                 
                 newPoints.addAll(points.subList(0, j+1));
-                newPoints.add(shape.getPoint(2));
                 newPoints.add(shape.getPoint(3));
+                newPoints.add(shape.getPoint(0));
                 newPoints.addAll(points.subList(j+1, points.size()));
             }
         }
@@ -189,24 +190,48 @@ public class Area {
 
     public void sortChunks() {
         ArrayList<Shape> sortedChunks = new ArrayList<>();
-        double[][] chunkCorners = new double[this.chunks.size()][2];
+        Double[][] chunkCorners = new Double[this.chunks.size()][2];
 
         for(int i = 0; i < this.chunks.size(); i++) {
-            chunkCorners[i] = new double[]{this.chunks.get(i).getPoint(0).getY()*-1, this.chunks.get(i).getPoint(0).getX()};
+            chunkCorners[i] = new Double[]{this.chunks.get(i).getPoint(0).getY()*-1, this.chunks.get(i).getPoint(0).getX()};
         }
+        
 
-        Arrays.sort(chunkCorners, (a, b) -> Double.compare(a[0] + a[1], b[0] + b[1]));
+        for(Double[] corner : chunkCorners) {
+            Bukkit.getLogger().warning("[DEBUG] : (" + corner[0] + ", " + corner[1] + ")");
+        }
+        Bukkit.getLogger().warning("[DEBUG] : Sort");
 
-        for(double[] corner : chunkCorners) {
+        Arrays.sort(chunkCorners, new Comparator<Double[]>() {
+            public int compare(Double[] a, Double[] b)
+            {
+                int res = a[0].compareTo(b[0]);
+                if(res!=0)
+                    return res;
+                return a[1].compareTo(b[1]);
+            }
+        });
+
+        for(Double[] corner : chunkCorners) {
             Bukkit.getLogger().warning("[DEBUG] : (" + corner[1] + ", " + corner[0]*-1 + ")");
+            Double x = corner[1];
+            Double z = corner[0]*-1;
+            sortedChunks.add(new Shape(new Vector2d(x, z), new Vector2d(x, z+16), new Vector2d(x+16, z+16), new Vector2d(x+16, z)));
         }
+
+        this.chunks = sortedChunks;
     }
 
     public void draw() {
-        //sortChunks();
-        if(this.chunks.size() > 1) {
-            this.shape = merge(this.chunks.get(this.chunks.size() - 1));
+        sortChunks(); 
+        this.shape = this.chunks.get(0);
+        for(int i = 1; i < this.chunks.size(); i++) {
+            this.shape = this.merge(this.chunks.get(i));
         }
+        
+        /*if(this.chunks.size() > 1) {
+            this.shape = merge(this.chunks.get(this.chunks.size() - 1));
+        }*/
 
         ExtrudeMarker marker = ExtrudeMarker.builder()
             .label("TestName")
