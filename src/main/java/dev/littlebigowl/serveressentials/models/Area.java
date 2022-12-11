@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
+
 import com.flowpowered.math.vector.Vector2d;
 
 import de.bluecolored.bluemap.api.BlueMapMap;
@@ -105,13 +107,28 @@ public class Area {
                     while(j < shape.getPointCount() && this.containsPoint(shape.getPoint(j))) {
                         j += 1;
                     }
+                    
                     if(j != shape.getPointCount()) {
                         if(j != 3) {
-                            newPoints.add(shape.getPoint(j));
-                            newPoints.add(shape.getPoint(j+1));
+                            Bukkit.getLogger().warning("here");
+                            if(compareVector2d(shape.getPoint(j+1), points.get(i+1))) {
+                                Bukkit.getLogger().warning("here2");
+                                newPoints.add(shape.getPoint(3));
+                                newPoints.add(shape.getPoint(0));
+                            } else {
+                                Bukkit.getLogger().warning("here3");
+                                newPoints.add(shape.getPoint(j));
+                                newPoints.add(shape.getPoint(j+1));
+                            }
                         } else {
-                            newPoints.add(shape.getPoint(j));
-                            newPoints.add(shape.getPoint(0));
+                            Bukkit.getLogger().warning("here4 " + j);
+                            if(compareVector2d(shape.getPoint(0), points.get(i+1))) {
+                                newPoints.add(shape.getPoint(2));
+                                newPoints.add(shape.getPoint(3));
+                            } else {
+                                newPoints.add(shape.getPoint(j));
+                                newPoints.add(shape.getPoint(0));
+                            }
                         }
                     }
                     newPoints.addAll(points.subList(i+1, this.shape.getPointCount()));
@@ -122,12 +139,18 @@ public class Area {
             if(compareSides(points.get(this.shape.getPointCount() - 1), points.get(0), commonSides.get(0)[0], commonSides.get(0)[1])) {
                 newPoints.addAll(points);
                 if(compareVector2d(newPoints.get(newPoints.size() - 1), shape.getPoint(3))) {
+                    Bukkit.getLogger().warning("here5");
                     newPoints.add(shape.getPoint(0));
                     newPoints.add(shape.getPoint(1));
                 } else {
+                    Bukkit.getLogger().warning("here6");
                     newPoints.add(shape.getPoint(3));
                     newPoints.add(shape.getPoint(0));
                 }
+            }
+
+            for(Vector2d point : newPoints) {
+                Bukkit.getLogger().warning("[DEBUG] : (" + point.getX() + ", " + point.getY() + ")");
             }
             
         } else if(commonSides.size() == 2) {
@@ -156,8 +179,8 @@ public class Area {
                 }
                 
                 newPoints.addAll(points.subList(0, j+1));
+                newPoints.add(shape.getPoint(2));
                 newPoints.add(shape.getPoint(3));
-                newPoints.add(shape.getPoint(0));
                 newPoints.addAll(points.subList(j+1, points.size()));
             }
         }
@@ -174,7 +197,23 @@ public class Area {
         return true;
     }
 
+    public void sortChunks() {
+        ArrayList<Shape> sortedChunks = new ArrayList<>();
+        double[][] chunkCorners = new double[this.chunks.size()][2];
+
+        for(int i = 0; i < this.chunks.size(); i++) {
+            chunkCorners[i] = new double[]{this.chunks.get(i).getPoint(0).getY()*-1, this.chunks.get(i).getPoint(0).getX()};
+        }
+
+        Arrays.sort(chunkCorners, (a, b) -> Double.compare(a[0] + a[1], b[0] + b[1]));
+
+        for(double[] corner : chunkCorners) {
+            Bukkit.getLogger().warning("[DEBUG] : (" + corner[1] + ", " + corner[0]*-1 + ")");
+        }
+    }
+
     public void draw() {
+        //sortChunks();
         if(this.chunks.size() > 1) {
             this.shape = merge(this.chunks.get(this.chunks.size() - 1));
         }
