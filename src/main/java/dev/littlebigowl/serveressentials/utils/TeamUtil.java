@@ -8,6 +8,7 @@ import dev.littlebigowl.serveressentials.ServerEssentials;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.awt.Color;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -46,13 +47,20 @@ public class TeamUtil {
     }
 
     private void setup() {
-        this.pcPlusTeam.setPrefix(ChatColor.translateAlternateColorCodes('&', "&f[" + Colors.PHILOCRAFTER_PLUS + "PC+&f] "));
-        this.pcTeam.setPrefix(ChatColor.translateAlternateColorCodes('&', "&f[" + Colors.PHILOCRAFTER + "PC&f] "));
-        this.memberTeam.setPrefix(ChatColor.translateAlternateColorCodes('&', "&f[" + Colors.MEMBER + "M&f] "));
-        this.playerPlusTeam.setPrefix(ChatColor.translateAlternateColorCodes('&', "&f[" + Colors.PLAYER_PLUS + "P+&f] "));
-        this.playerTeam.setPrefix(ChatColor.translateAlternateColorCodes('&', "&f[" + Colors.PLAYER + "P&f] "));
-        this.guestTeam.setPrefix(ChatColor.translateAlternateColorCodes('&', "&f[" + Colors.GUEST + "G&f] "));
+        Color pcPlusTeamColor = Colors.PHILOCRAFTER_PLUS;
+        Color pcTeamColor = Colors.PHILOCRAFTER;
+        Color memberTeamColor = Colors.MEMBER;
+        Color playerPlusTeamColor = Colors.PLAYER_PLUS;
+        Color playerTeamColor = Colors.PLAYER;
+        Color guestTeamColor = Colors.GUEST;
 
+        this.pcPlusTeam.setPrefix(net.md_5.bungee.api.ChatColor.WHITE + "[" + Colors.toBungeeChatColor(pcPlusTeamColor) + Characters.PHILOCRAFTER_PLUS_PREFIX + net.md_5.bungee.api.ChatColor.WHITE +  "] ");
+        this.pcTeam.setPrefix(net.md_5.bungee.api.ChatColor.WHITE +  "[" + Colors.toBungeeChatColor(pcTeamColor) + Characters.PHILOCRAFTER_PREFIX + net.md_5.bungee.api.ChatColor.WHITE +  "] ");
+        this.memberTeam.setPrefix(net.md_5.bungee.api.ChatColor.WHITE +  "[" + Colors.toBungeeChatColor(memberTeamColor) + Characters.MEMBER_PREFIX + net.md_5.bungee.api.ChatColor.WHITE +  "] ");
+        this.playerPlusTeam.setPrefix(net.md_5.bungee.api.ChatColor.WHITE +  "[" + Colors.toBungeeChatColor(playerPlusTeamColor) + Characters.PLAYER_PLUS_PREFIX + net.md_5.bungee.api.ChatColor.WHITE +  "] ");
+        this.playerTeam.setPrefix(net.md_5.bungee.api.ChatColor.WHITE +  "[" + Colors.toBungeeChatColor(playerTeamColor) + Characters.PLAYER_PREFIX + net.md_5.bungee.api.ChatColor.WHITE +  "] ");
+        this.guestTeam.setPrefix(net.md_5.bungee.api.ChatColor.WHITE +  "[" + Colors.toBungeeChatColor(guestTeamColor) + Characters.GUEST_PREFIX + net.md_5.bungee.api.ChatColor.WHITE +  "] ");
+        
         this.pcPlusTeam.setColor(ChatColor.GOLD);
         this.pcTeam.setColor(ChatColor.GOLD);
         this.memberTeam.setColor(ChatColor.AQUA);
@@ -109,35 +117,35 @@ public class TeamUtil {
         }
     }
 
-    public static String getTeamColor(int playtime) {
+    public static net.md_5.bungee.api.ChatColor getTeamColor(int playtime) {
         if (playtime >= 300 && playtime < 1500) {
-            return Colors.PLAYER;
+            return Colors.toBungeeChatColor(Colors.PLAYER);
         } else if (playtime >= 1500 && playtime < 5000) {
-            return Colors.PLAYER_PLUS;
+            return Colors.toBungeeChatColor(Colors.PLAYER_PLUS);
         } else if (playtime >= 5000 && playtime < 10000) {
-            return Colors.MEMBER;
+            return Colors.toBungeeChatColor(Colors.MEMBER);
         } else if (playtime >= 10000 && playtime < 30000) {
-            return Colors.PHILOCRAFTER;
+            return Colors.toBungeeChatColor(Colors.PHILOCRAFTER);
         } else if (playtime >= 30000) {
-            return Colors.PHILOCRAFTER_PLUS;
+            return Colors.toBungeeChatColor(Colors.PHILOCRAFTER_PLUS);
         } else {
-            return Colors.PHILOCRAFTER_PLUS;
+            return Colors.toBungeeChatColor(Colors.PHILOCRAFTER_PLUS);
         }
     }
 
     public static String getTerminalTeamColor(int playtime) {
         if (playtime >= 300 && playtime < 1500) {
-            return Colors.PLAYER_UNICODE;
+            return "\u001b[38;2;" + Colors.PLAYER.getRed() + ";" + Colors.PLAYER.getGreen() + ";" + Colors.PLAYER.getBlue() + "m";
         } else if (playtime >= 1500 && playtime < 5000) {
-            return Colors.PLAYER_PLUS_UNICODE;
+            return "\u001b[38;2;" + Colors.PLAYER_PLUS.getRed() + ";" + Colors.PLAYER_PLUS.getGreen() + ";" + Colors.PLAYER_PLUS.getBlue() + "m";
         } else if (playtime >= 5000 && playtime < 10000) {
-            return Colors.MEMBER_UNICODE;
+            return "\u001b[38;2;" + Colors.MEMBER.getRed() + ";" + Colors.MEMBER.getGreen() + ";" + Colors.MEMBER.getBlue() + "m";
         } else if (playtime >= 10000 && playtime < 30000) {
-            return Colors.PHILOCRAFTER_UNICODE;
+            return "\u001b[38;2;" + Colors.PHILOCRAFTER.getRed() + ";" + Colors.PHILOCRAFTER.getGreen() + ";" + Colors.PHILOCRAFTER.getBlue() + "m";
         } else if (playtime >= 30000) {
-            return Colors.PHILOCRAFTER_PLUS_UNICODE;
+            return "\u001b[38;2;" + Colors.PHILOCRAFTER_PLUS.getRed() + ";" + Colors.PHILOCRAFTER_PLUS.getGreen() + ";" + Colors.PHILOCRAFTER_PLUS.getBlue() + "m";
         } else {
-            return Colors.GUEST_UNICODE;
+            return "\u001b[38;2;" + Colors.GUEST.getRed() + ";" + Colors.GUEST.getGreen() + ";" + Colors.GUEST.getBlue() + "m";
         }
     }
 
@@ -183,6 +191,6 @@ public class TeamUtil {
         String mspt = Float.toString((float)round(getTPS()[0], 1));
 
         player.setPlayerListHeader(ChatColor.translateAlternateColorCodes('&', "\n"+ Colors.SERVER_GRADIENT +"\n&7Welcome, &e"+player.getName()));
-        player.setPlayerListFooter(ChatColor.translateAlternateColorCodes('&', "\n&7Ping: &a" + ping + " &7Online: &b" + players + " &7MSPT: &a" + mspt + " &7TPS: &a" + tps + "\n&9Discord &f» &7discord.gg/F2upgYUDFa" + "\n&aStore &f» &7https://littlebigowl.dev/pages/store.html"));
+        player.setPlayerListFooter(ChatColor.translateAlternateColorCodes('&', "\n&7Ping: &a" + ping + " &7Online: &b" + players + " &7MSPT: &a" + mspt + " &7TPS: &a" + tps + "\n&9Discord " + net.md_5.bungee.api.ChatColor.WHITE +  "» &7discord.gg/F2upgYUDFa" + "\n&aStore " + net.md_5.bungee.api.ChatColor.WHITE +  "» &7https://littlebigowl.dev/pages/store.html"));
     }
 }

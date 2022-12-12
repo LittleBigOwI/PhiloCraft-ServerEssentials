@@ -82,7 +82,6 @@ public class RankinfoCommand implements CommandExecutor, TabCompleter{
                 top.addExtra(end);
 
                 player.spigot().sendMessage(top);
-
             } else {
                 sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cInvalid Arguments."));
             }

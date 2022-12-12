@@ -14,10 +14,10 @@ public class Characters {
     public static final String MUSIC_SHUFFLE = "<:Shuffle:936980188623958046>";
     public static final String MUSIC_STOP = "<:Stop:846712942221459478>";
 
-    public static final String GUEST_PREFIX = "[G]";
-    public static final String PLAYER_PREFIX = "[P]";
-    public static final String PLAYER_PLUS_PREFIX = "[P+]";
-    public static final String MEMBER_PREFIX = "[M]";
-    public static final String PHILOCRAFTER_PREFIX = "[PC]";
-    public static final String PHILOCRAFTER_PLUS_PREFIX = "[PC+]";
+    public static final String GUEST_PREFIX = "G";
+    public static final String PLAYER_PREFIX = "P";
+    public static final String PLAYER_PLUS_PREFIX = "P+";
+    public static final String MEMBER_PREFIX = "M";
+    public static final String PHILOCRAFTER_PREFIX = "PC";
+    public static final String PHILOCRAFTER_PLUS_PREFIX = "PC+";
 }

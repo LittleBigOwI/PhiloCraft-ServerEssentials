@@ -17,6 +17,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 
+import dev.littlebigowl.serveressentials.ServerEssentials;
 import dev.littlebigowl.serveressentials.models.Area;
 import dev.littlebigowl.serveressentials.models.Home;
 import dev.littlebigowl.serveressentials.models.PlayerParticle;
@@ -263,6 +264,15 @@ public class Database {
         } else {
             return false;
         }
+    }
+
+    //!Areas
+    public ArrayList<String> getAreaNames(UUID playerUUID) {
+        ArrayList<String> areaNames = new ArrayList<>();
+        for(Area area : ServerEssentials.database.playerAreas.get(playerUUID)) {
+            areaNames.add(area.getName());
+        }
+        return areaNames;
     }
 
 }

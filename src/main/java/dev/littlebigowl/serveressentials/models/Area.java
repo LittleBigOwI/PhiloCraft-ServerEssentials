@@ -228,10 +228,6 @@ public class Area {
         for(int i = 1; i < this.chunks.size(); i++) {
             this.shape = this.merge(this.chunks.get(i));
         }
-        
-        /*if(this.chunks.size() > 1) {
-            this.shape = merge(this.chunks.get(this.chunks.size() - 1));
-        }*/
 
         ExtrudeMarker marker = ExtrudeMarker.builder()
             .label("TestName")

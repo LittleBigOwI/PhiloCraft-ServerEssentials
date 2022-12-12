@@ -30,7 +30,7 @@ public class OnPlayerDeath implements Listener {
                 "Server",
                 Config.get().getString("DiscordWebhookAvatarURL")
             );
-            serverWebHook.sendEmbed(Colors.DEATH, TeamUtil.getTeamPrefix(Math.round(player.getStatistic(Statistic.PLAY_ONE_MINUTE)/1200)) + " " + deathMessage, "https://minotar.net/avatar/" + player.getName() + ".png");
+            serverWebHook.sendEmbed(Colors.toInt(Colors.DEATH), TeamUtil.getTeamPrefix(Math.round(player.getStatistic(Statistic.PLAY_ONE_MINUTE)/1200)) + " " + deathMessage, "https://minotar.net/avatar/" + player.getName() + ".png");
 
             int x = (int) player.getLocation().getX();
             int y = (int) player.getLocation().getY();

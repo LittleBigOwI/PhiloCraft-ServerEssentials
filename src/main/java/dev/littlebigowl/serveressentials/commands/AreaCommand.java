@@ -28,7 +28,7 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
             Player player = (Player) sender;
             UUID playerUUID = player.getUniqueId();
             
-            if(args[0].equals("create") && args.length == 2) {
+            if(args[0].equals("create") && args.length == 3) {
                 String name = args[1];
                 
                 ArrayList<Area> areas = ServerEssentials.database.playerAreas.get(playerUUID);
@@ -54,6 +54,7 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
                 Area area = new Area(name, playerUUID, shape);
                 ServerEssentials.database.playerAreas.get(playerUUID).add(area);
                 
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully created area"));
                 area.draw();
 
             } else if(args[0].equals("expand") && args.length == 2) {
@@ -77,8 +78,16 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+        Player player = null;
+        if(sender instanceof Player) {
+            player = (Player)sender;
+        }
         if(label.equalsIgnoreCase("area") && args.length == 1) {
-            return Arrays.asList("create", "expand", "edit", "delete");
+            return Arrays.asList("create", "expand", "edit", "delete", "subdue");
+        } else if(label.equalsIgnoreCase("area") && args.length == 2 && args[1].equals("expand") && player != null) {
+            return ServerEssentials.database.getAreaNames(player.getUniqueId());
+        } else if(label.equalsIgnoreCase("area") && args.length == 2 && args[1].equals("edit")) {
+            return Arrays.asList("name", "color", "groupName");
         } else {
             return new ArrayList<>();
         }

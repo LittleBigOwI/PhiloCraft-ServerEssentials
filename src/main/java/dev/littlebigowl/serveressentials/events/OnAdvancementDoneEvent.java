@@ -143,7 +143,7 @@ public class OnAdvancementDoneEvent implements Listener {
             "Server",
             Config.get().getString("DiscordWebhookAvatarURL")
         );
-        serverWebHook.sendEmbed(Colors.ADVANCEMENT, TeamUtil.getTeamPrefix(Math.round(event.getPlayer().getStatistic(Statistic.PLAY_ONE_MINUTE)/1200)) + " " + event.getPlayer().getName() +" has made the advancement [" + advancementTitle +"]", "https://minotar.net/avatar/" + event.getPlayer().getName() +".png", advancementDescription);
+        serverWebHook.sendEmbed(Colors.toInt(Colors.ADVANCEMENT), TeamUtil.getTeamPrefix(Math.round(event.getPlayer().getStatistic(Statistic.PLAY_ONE_MINUTE)/1200)) + " " + event.getPlayer().getName() +" has made the advancement [" + advancementTitle +"]", "https://minotar.net/avatar/" + event.getPlayer().getName() +".png", advancementDescription);
     }
 
 }
