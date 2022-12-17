@@ -28,7 +28,7 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
             Player player = (Player) sender;
             UUID playerUUID = player.getUniqueId();
             
-            if(args[0].equals("create") && args.length == 3) {
+            if(args[0].equals("create") && args.length == 2) {
                 String name = args[1];
                 
                 ArrayList<Area> areas = ServerEssentials.database.playerAreas.get(playerUUID);

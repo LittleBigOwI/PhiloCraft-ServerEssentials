@@ -225,8 +225,20 @@ public class Area {
     public void draw() {
         sortChunks(); 
         this.shape = this.chunks.get(0);
+        ArrayList<Shape> unmergableChunks = new ArrayList<>();
+        
         for(int i = 1; i < this.chunks.size(); i++) {
-            this.shape = this.merge(this.chunks.get(i));
+            if(this.merge(this.chunks.get(i)) == null) {
+                unmergableChunks.add(this.chunks.get(i));
+            } else {
+                this.shape = this.merge(this.chunks.get(i));
+                for(int j = 0; j <  unmergableChunks.size(); j++) {
+                    if(this.merge(unmergableChunks.get(j)) != null) {
+                        this.shape = this.merge(unmergableChunks.get(j));
+                        unmergableChunks.remove(j);
+                    }
+                }
+            };
         }
 
         ExtrudeMarker marker = ExtrudeMarker.builder()
