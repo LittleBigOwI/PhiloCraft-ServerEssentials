@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -16,6 +17,7 @@ import com.flowpowered.math.vector.Vector2d;
 import de.bluecolored.bluemap.api.math.Shape;
 import dev.littlebigowl.serveressentials.ServerEssentials;
 import dev.littlebigowl.serveressentials.models.Area;
+import dev.littlebigowl.serveressentials.utils.TeamUtil;
 import net.md_5.bungee.api.ChatColor;
 
 
@@ -49,13 +51,14 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
 
                 int x = player.getLocation().getChunk().getX()*16;
                 int z = player.getLocation().getChunk().getZ()*16; //Bottom right corner of chunk
-                
+                int playtime = Math.round(player.getStatistic(Statistic.PLAY_ONE_MINUTE)/1200);
+
                 Shape shape = new Shape(new Vector2d(x, z), new Vector2d(x, z+16), new Vector2d(x+16, z+16), new Vector2d(x+16, z));
                 Area area = new Area(name, playerUUID, shape);
                 ServerEssentials.database.playerAreas.get(playerUUID).add(area);
                 
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully created area"));
-                area.draw();
+                area.draw(TeamUtil.getTeamColor(playtime));
 
             } else if(args[0].equals("expand") && args.length == 2) {
                 int x = player.getLocation().getChunk().getX()*16;
@@ -66,7 +69,8 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
                 
                 if(area.addChunk(shape)) {
                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aAdded chunk to your area"));
-                   area.draw();
+                   int playtime = Math.round(player.getStatistic(Statistic.PLAY_ONE_MINUTE)/1200);
+                   area.draw(TeamUtil.getTeamColor(playtime));
                 } else {
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThis chunk can't be added to your area."));
                 }

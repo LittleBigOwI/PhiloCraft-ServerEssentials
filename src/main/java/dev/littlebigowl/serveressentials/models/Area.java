@@ -2,11 +2,13 @@ package dev.littlebigowl.serveressentials.models;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import com.flowpowered.math.vector.Vector2d;
 
@@ -16,16 +18,19 @@ import de.bluecolored.bluemap.api.markers.MarkerSet;
 import de.bluecolored.bluemap.api.math.Color;
 import de.bluecolored.bluemap.api.math.Shape;
 import dev.littlebigowl.serveressentials.ServerEssentials;
+import net.md_5.bungee.api.ChatColor;
 
 public class Area {
     
     private String name;
+    private UUID playerUUID;
     private String id;
     private ArrayList<Shape> chunks = new ArrayList<>();
     private Shape shape;
 
     public Area(String areaName, UUID playerUUID, Shape shape) {
         this.name = areaName;
+        this.playerUUID = playerUUID;
         this.id = playerUUID.toString() + "." + areaName;
         this.chunks.add(shape);
         this.shape = shape;
@@ -179,28 +184,13 @@ public class Area {
         return new Shape(newPoints);
     }
 
-    public boolean addChunk(Shape shape) {
-        if(this.getCommonSides(shape).size() == 0) {
-            return false;
-        }
-        
-        this.chunks.add(shape);
-        return true;
-    }
-
-    public void sortChunks() {
+    private void sortChunks() {
         ArrayList<Shape> sortedChunks = new ArrayList<>();
         Double[][] chunkCorners = new Double[this.chunks.size()][2];
 
         for(int i = 0; i < this.chunks.size(); i++) {
             chunkCorners[i] = new Double[]{this.chunks.get(i).getPoint(0).getY()*-1, this.chunks.get(i).getPoint(0).getX()};
         }
-        
-
-        for(Double[] corner : chunkCorners) {
-            Bukkit.getLogger().warning("[DEBUG] : (" + corner[0] + ", " + corner[1] + ")");
-        }
-        Bukkit.getLogger().warning("[DEBUG] : Sort");
 
         Arrays.sort(chunkCorners, new Comparator<Double[]>() {
             public int compare(Double[] a, Double[] b)
@@ -213,7 +203,6 @@ public class Area {
         });
 
         for(Double[] corner : chunkCorners) {
-            Bukkit.getLogger().warning("[DEBUG] : (" + corner[1] + ", " + corner[0]*-1 + ")");
             Double x = corner[1];
             Double z = corner[0]*-1;
             sortedChunks.add(new Shape(new Vector2d(x, z), new Vector2d(x, z+16), new Vector2d(x+16, z+16), new Vector2d(x+16, z)));
@@ -222,8 +211,77 @@ public class Area {
         this.chunks = sortedChunks;
     }
 
-    public void draw() {
-        sortChunks(); 
+    private double distanceBetweenPoints(Vector2d p1, Vector2d p2) {
+        double px = p2.getX() - p1.getX();
+        double py = p2.getY() - p1.getY();
+        return Math.sqrt(px * px + py * py);
+    }
+
+    private ArrayList<Vector2d> getAnchorPoints() {
+        ArrayList<Vector2d> points = new ArrayList<>(Arrays.asList(this.shape.getPoints()));
+        ArrayList<Integer> pointsToRemoveByIndex = new ArrayList<>();
+
+        double threshold = 0.1;
+
+        for(int i = 1; i < points.size() -1; i++) {
+            Vector2d previous = points.get(i-1);
+            Vector2d current = points.get(i);
+            Vector2d next = points.get(i+1);
+
+            double nextToPrevious = distanceBetweenPoints(previous, next);
+            double ordinal = distanceBetweenPoints(previous, current) + distanceBetweenPoints(current, next);
+
+            if (Math.abs(nextToPrevious - ordinal) < threshold) {
+				pointsToRemoveByIndex.add(i);
+			}
+        }
+
+        Vector2d previous = points.get(points.size()-2);
+        Vector2d current = points.get(points.size()-1);
+        Vector2d next = points.get(0);
+
+        double nextToPrevious = distanceBetweenPoints(previous, next);
+        double ordinal = distanceBetweenPoints(previous, current) + distanceBetweenPoints(current, next);
+
+        if(Math.abs(nextToPrevious - ordinal) < threshold) {
+            pointsToRemoveByIndex.add(points.size()-1);
+        }
+
+        previous = points.get(points.size()-1);
+        current = points.get(0);
+        next = points.get(1);
+
+        nextToPrevious = distanceBetweenPoints(previous, next);
+        ordinal = distanceBetweenPoints(previous, current) + distanceBetweenPoints(current, next);
+
+        if(Math.abs(nextToPrevious - ordinal) < threshold) {
+            pointsToRemoveByIndex.add(0);
+        }
+
+        Collections.sort(pointsToRemoveByIndex);
+        Collections.reverse(pointsToRemoveByIndex);
+        for(int index : pointsToRemoveByIndex) {
+            points.remove(index);
+        }
+
+        return points;
+    }
+
+    private Player getPlayer() {
+        return Bukkit.getPlayer(this.playerUUID);
+    }
+
+    public boolean addChunk(Shape shape) {
+        if(this.getCommonSides(shape).size() == 0) {
+            return false;
+        }
+        
+        this.chunks.add(shape);
+        return true;
+    }
+
+    public void draw(ChatColor color) {
+        this.sortChunks(); 
         this.shape = this.chunks.get(0);
         ArrayList<Shape> unmergableChunks = new ArrayList<>();
         
@@ -241,16 +299,33 @@ public class Area {
             };
         }
 
+        int[] borderColor = new int[]{color.getColor().getRed(), color.getColor().getGreen(), color.getColor().getBlue()};
+        int[] fillcolor = new int[3];
+        for(int k = 0; k < borderColor.length; k++) {
+            if(borderColor[k] > 55) {
+                fillcolor[k] = borderColor[k] - 55;
+            } else {
+                fillcolor[k] = 0;
+            }
+        }
+
+        String markerSetName;
+        if(this.getPlayer().getName().endsWith("s")) {
+            markerSetName = this.getPlayer().getName() + " claims";
+        } else {
+            markerSetName = this.getPlayer().getName() + "s claims";
+        }
+
         ExtrudeMarker marker = ExtrudeMarker.builder()
-            .label("TestName")
-            .shape(this.shape, -64, 320)
-            .lineColor(new Color(255, 0, 0, (float)1.0))
-            .fillColor(new Color(200, 0, 0, (float)0.3))
+            .label(this.name)
+            .shape(new Shape(this.getAnchorPoints()), -64, 320)
+            .lineColor(new Color(borderColor[0], borderColor[1], borderColor[2], (float)1.0))
+            .fillColor(new Color(fillcolor[0], fillcolor[1], fillcolor[2], (float)0.3))
             .minDistance(0.0)
             .build();
 
         MarkerSet markerSet = MarkerSet.builder()
-            .label(this.name)
+            .label(markerSetName)
             .build();
         
         markerSet.put(this.id + ".marker", marker);
