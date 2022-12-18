@@ -39,13 +39,13 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
 
                 for (Area area : areas) {
                     if(area.getName() == name) {
-                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYou already have a town with the same name."));
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYou already have an area with the same name."));
                         return true;
                     }
                 }
 
                 if(areas.size() >= 2) {
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYou have reached the maximum amount of towns a player can have."));
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYou have reached the maximum amount of areas a player can have."));
                     return true;
                 }
 
@@ -88,10 +88,10 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
         }
         if(label.equalsIgnoreCase("area") && args.length == 1) {
             return Arrays.asList("create", "expand", "edit", "delete", "subdue");
-        } else if(label.equalsIgnoreCase("area") && args.length == 2 && args[1].equals("expand") && player != null) {
+        } else if(label.equalsIgnoreCase("area") && args.length == 2 && args[0].equals("expand")) {
             return ServerEssentials.database.getAreaNames(player.getUniqueId());
-        } else if(label.equalsIgnoreCase("area") && args.length == 2 && args[1].equals("edit")) {
-            return Arrays.asList("name", "color", "groupName");
+        } else if(label.equalsIgnoreCase("area") && args.length == 2 && args[0].equals("edit")) {
+            return Arrays.asList("name", "color", "groupName", "permissions");
         } else {
             return new ArrayList<>();
         }

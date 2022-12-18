@@ -269,8 +269,12 @@ public class Database {
     //!Areas
     public ArrayList<String> getAreaNames(UUID playerUUID) {
         ArrayList<String> areaNames = new ArrayList<>();
-        for(Area area : ServerEssentials.database.playerAreas.get(playerUUID)) {
-            areaNames.add(area.getName());
+        ArrayList<Area> areas = ServerEssentials.database.playerAreas.get(playerUUID);
+        
+        if(areas != null) {
+            for(Area area : areas) {
+                areaNames.add(area.getName());
+            }
         }
         return areaNames;
     }
