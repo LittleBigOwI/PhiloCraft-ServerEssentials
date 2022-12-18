@@ -30,8 +30,12 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
             Player player = (Player) sender;
             UUID playerUUID = player.getUniqueId();
             
-            if(args[0].equals("create") && args.length == 2) {
-                String name = args[1];
+            if(args[0].equals("create") && args.length >= 2) {
+                String name = "";
+                for(int i = 1; i < args.length; i++) {
+                    name = name + " " + args[i];
+                }
+                name = name.substring(1);
                 
                 ArrayList<Area> areas = ServerEssentials.database.playerAreas.get(playerUUID);
                 if(areas == null) { ServerEssentials.database.playerAreas.put(playerUUID, new ArrayList<Area>()); }
@@ -60,19 +64,27 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully created area"));
                 area.draw(TeamUtil.getTeamColor(playtime));
 
-            } else if(args[0].equals("expand") && args.length == 2) {
+            } else if(args[0].equals("expand") && args.length >= 2) {
                 int x = player.getLocation().getChunk().getX()*16;
                 int z = player.getLocation().getChunk().getZ()*16; //Bottom right corner of chunk
                 Shape shape =  new Shape(new Vector2d(x, z), new Vector2d(x, z+16), new Vector2d(x+16, z+16), new Vector2d(x+16, z)); //square
                 
-                Area area = Area.getAreaByName(playerUUID, args[1]);
+                String areaName = "";
+                for(int i = 1; i < args.length; i++) {
+                    areaName = areaName + " " + args[i];
+                }
+                areaName = areaName.substring(1);
+
+                Area area = Area.getAreaByName(playerUUID, areaName);
                 
-                if(area.addChunk(shape)) {
+                if(area != null && area.addChunk(shape)) {
                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aAdded chunk to your area"));
                    int playtime = Math.round(player.getStatistic(Statistic.PLAY_ONE_MINUTE)/1200);
                    area.draw(TeamUtil.getTeamColor(playtime));
-                } else {
+                } else if(area != null){
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThis chunk can't be added to your area."));
+                } else {
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThis area cannot be found."));
                 }
             }
         }

@@ -31,7 +31,7 @@ public class Area {
     public Area(String areaName, UUID playerUUID, Shape shape) {
         this.name = areaName;
         this.playerUUID = playerUUID;
-        this.id = playerUUID.toString() + "." + areaName;
+        this.id = areaName.replace(" ", "_");
         this.chunks.add(shape);
         this.shape = shape;
     }
@@ -328,11 +328,15 @@ public class Area {
             .label(markerSetName)
             .build();
         
-        markerSet.put(this.id + ".marker", marker);
+        markerSet.put(this.id, marker);
                 
         ServerEssentials.blueMapAPI.getWorld("world").ifPresent(world -> {
             for(BlueMapMap map : world.getMaps()) {
-                map.getMarkerSets().put(this.id + ".markerset", markerSet);
+                if(map.getMarkerSets().get(this.playerUUID.toString()) != null) {
+                    map.getMarkerSets().get(this.playerUUID.toString()).put(this.id, marker);
+                } else {
+                    map.getMarkerSets().put(this.playerUUID.toString(), markerSet);
+                }
             }
         });
     }
@@ -343,10 +347,14 @@ public class Area {
 
     public static Area getAreaByName(UUID playerUUID, String name) {
         ArrayList<Area> areas = ServerEssentials.database.playerAreas.get(playerUUID);
-        if(areas.get(0).getName().equals(name)) {
-            return areas.get(0);
+        Area selectedArea = null;
+        for(Area area : areas) {
+            if(area.getName().equals(name)) {
+                selectedArea = area;
+            }
         }
-        return areas.get(1);
+
+        return selectedArea;
     }
 
 }
