@@ -25,7 +25,7 @@ public class Area {
     private String name;
     private UUID playerUUID;
     private String id;
-    private ArrayList<Shape> chunks = new ArrayList<>();
+    public ArrayList<Shape> chunks = new ArrayList<>();
     private Shape shape;
 
     public Area(String areaName, UUID playerUUID, Shape shape) {
@@ -272,12 +272,20 @@ public class Area {
     }
 
     public boolean addChunk(Shape shape) {
-        if(this.getCommonSides(shape).size() == 0) {
-            return false;
-        }
+        boolean available = !(this.getCommonSides(shape).size() == 0);
+        ArrayList<Shape> allChunks = ServerEssentials.database.getAreaShapes();
         
-        this.chunks.add(shape);
-        return true;
+        int i = 0;
+        while(i < allChunks.size() && (shape.getPoint(0).getFloorX() != allChunks.get(i).getPoint(0).getFloorX() || shape.getPoint(0).getFloorY() != allChunks.get(i).getPoint(0).getFloorY())) {
+            i++;
+        }
+        available = (i == allChunks.size());
+        
+        if(available) {
+            this.chunks.add(shape);
+        }
+
+        return available;
     }
 
     public void draw(ChatColor color) {

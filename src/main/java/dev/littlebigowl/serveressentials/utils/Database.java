@@ -17,6 +17,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 
+import de.bluecolored.bluemap.api.math.Shape;
 import dev.littlebigowl.serveressentials.ServerEssentials;
 import dev.littlebigowl.serveressentials.models.Area;
 import dev.littlebigowl.serveressentials.models.Home;
@@ -277,6 +278,31 @@ public class Database {
             }
         }
         return areaNames;
+    }
+
+    public ArrayList<Area> getAreas() {
+        ArrayList<Area> allAreas = new ArrayList<>();
+
+        for(ArrayList<Area> playerAreas : ServerEssentials.database.playerAreas.values()) {
+            for(Area playerArea : playerAreas) {
+                allAreas.add(playerArea);
+            }
+        }
+
+        return allAreas;
+    }
+
+    public ArrayList<Shape> getAreaShapes() {
+        ArrayList<Area> allAreas = this.getAreas();
+        ArrayList<Shape> allShapes = new ArrayList<>();
+
+        for(Area area : allAreas) {
+            for(Shape shape : area.chunks) {
+                allShapes.add(shape);
+            }
+        }
+
+        return allShapes;
     }
 
 }
