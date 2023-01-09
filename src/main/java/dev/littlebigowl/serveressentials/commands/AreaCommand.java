@@ -1,7 +1,9 @@
 package dev.littlebigowl.serveressentials.commands;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,6 +21,9 @@ import dev.littlebigowl.serveressentials.ServerEssentials;
 import dev.littlebigowl.serveressentials.models.Area;
 import dev.littlebigowl.serveressentials.utils.TeamUtil;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 
 
 public class AreaCommand implements CommandExecutor, TabCompleter{
@@ -58,11 +63,16 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
                 int playtime = Math.round(player.getStatistic(Statistic.PLAY_ONE_MINUTE)/1200);
 
                 Shape shape = new Shape(new Vector2d(x, z), new Vector2d(x, z+16), new Vector2d(x+16, z+16), new Vector2d(x+16, z));
-                Area area = new Area(name, playerUUID, shape);
-                ServerEssentials.database.playerAreas.get(playerUUID).add(area);
-                
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully created area"));
-                area.draw(TeamUtil.getTeamColor(playtime));
+                Area presentArea = ServerEssentials.database.getAreaFromPosition(shape);
+                if(presentArea == null) {
+                    Area area = new Area(name, playerUUID, shape);
+                    ServerEssentials.database.playerAreas.get(playerUUID).add(area);
+                    
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully created area"));
+                    area.draw(TeamUtil.getTeamColor(playtime));
+                } else {
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYou can't create an area here"));
+                }
 
             } else if(args[0].equals("expand") && args.length >= 2) {
                 int x = player.getLocation().getChunk().getX()*16;
@@ -86,6 +96,40 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
                 } else {
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThis area cannot be found."));
                 }
+            } else if(args[0].equals("edit") && args.length >= 2) {
+                
+            } else if(args[0].equals("subdue") && args.length >= 2) {
+                
+            } else if(args[0].equals("info") && args.length == 1) {
+                int x = player.getLocation().getChunk().getX()*16;
+                int z = player.getLocation().getChunk().getZ()*16; //Bottom right corner of chunk
+                Shape shape =  new Shape(new Vector2d(x, z), new Vector2d(x, z+16), new Vector2d(x+16, z+16), new Vector2d(x+16, z)); //square
+                
+                Area area = ServerEssentials.database.getAreaFromPosition(shape);
+
+                if(area != null) {
+                    String areaOwner = area.getPlayer().getName();
+                    String creationDate = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss").format(new Date(area.creationDate));
+                    int areaSurface = (16*16)*area.chunks.size();
+
+                    TextComponent title = new TextComponent(ChatColor.translateAlternateColorCodes('&', "&f&lArea Info:&r"));
+                    TextComponent ownerInfo = new TextComponent(ChatColor.translateAlternateColorCodes('&', "\n&r&b[Owner] - &r&3" + areaOwner));
+                    TextComponent surfaceInfo = new TextComponent(ChatColor.translateAlternateColorCodes('&', "\n&r&b[Surface] - &r&3" + areaSurface + "m²"));
+                    TextComponent creationInfo = new TextComponent(ChatColor.translateAlternateColorCodes('&', "\n&r&b[Creation] - &r&3" + creationDate));
+
+                    surfaceInfo.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(ChatColor.translateAlternateColorCodes('&', "&b" + area.chunks.size() + "&r 16 by 16 chunks"))));
+
+                    title.addExtra(ownerInfo);
+                    title.addExtra(surfaceInfo);
+                    title.addExtra(creationInfo);
+
+                    player.spigot().sendMessage(title);
+                } else {
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThere is no area at your position"));
+                }
+
+            } else if(args[0].equals("trust") && args.length >= 2) {
+                
             }
         }
     
@@ -95,15 +139,26 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         Player player = null;
+        List<String> permissions = Arrays.asList("doMobGriefing", "doPVP");
         if(sender instanceof Player) {
             player = (Player)sender;
         }
+
         if(label.equalsIgnoreCase("area") && args.length == 1) {
-            return Arrays.asList("create", "expand", "edit", "delete", "subdue");
+            return Arrays.asList("create", "expand", "edit", "delete", "subdue", "info", "trust");
+
         } else if(label.equalsIgnoreCase("area") && args.length == 2 && args[0].equals("expand")) {
             return ServerEssentials.database.getAreaNames(player.getUniqueId());
+
         } else if(label.equalsIgnoreCase("area") && args.length == 2 && args[0].equals("edit")) {
             return Arrays.asList("name", "color", "groupName", "permissions");
+
+        } else if(label.equalsIgnoreCase("area") && args.length == 3 && args[0].equals("edit") && args[1].equals("permissions")) {
+            return permissions;
+
+        } else if(label.equalsIgnoreCase("area") && args.length == 4 && args[0].equals("edit") && args[1].equals("permissions") && permissions.contains(args[2])) {
+            return Arrays.asList("true", "false");
+
         } else {
             return new ArrayList<>();
         }

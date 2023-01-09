@@ -305,5 +305,30 @@ public class Database {
         return allShapes;
     }
 
+    public Area getAreaFromPosition(Shape shape) {
+        ArrayList<Area> allAreas = this.getAreas();
+
+        int i = 0;
+        boolean found = false;
+        Area area = null;
+
+        while(i < allAreas.size() && !(found)) {
+            int j = 0;
+            ArrayList<Shape> chunks = allAreas.get(i).chunks;
+            
+            while(j < chunks.size() && (shape.getPoint(0).getFloorX() != chunks.get(j).getPoint(0).getFloorX() || shape.getPoint(0).getFloorY() != chunks.get(j).getPoint(0).getFloorY())) {
+                j++;
+            }
+            found = (j != chunks.size());
+            i++;
+        }
+
+        if(found) {
+            area = allAreas.get(i-1);
+        }
+
+        return area;
+    }
+
 }
 

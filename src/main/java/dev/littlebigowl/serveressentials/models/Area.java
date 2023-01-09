@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,7 +27,9 @@ public class Area {
     private UUID playerUUID;
     private String id;
     public ArrayList<Shape> chunks = new ArrayList<>();
+    public HashMap<String, String> permissions = new HashMap<>();
     private Shape shape;
+    public long creationDate;
 
     public Area(String areaName, UUID playerUUID, Shape shape) {
         this.name = areaName;
@@ -34,6 +37,9 @@ public class Area {
         this.id = areaName.replace(" ", "_");
         this.chunks.add(shape);
         this.shape = shape;
+        this.creationDate = System.currentTimeMillis() / 1000L;
+        this.permissions.put("doMobGriefing", "true");
+        this.permissions.put("doPVP", "true");
     }
 
     private static boolean compareVector2d(Vector2d vector1, Vector2d vector2) {
@@ -267,7 +273,7 @@ public class Area {
         return points;
     }
 
-    private Player getPlayer() {
+    public Player getPlayer() {
         return Bukkit.getPlayer(this.playerUUID);
     }
 
@@ -275,12 +281,14 @@ public class Area {
         boolean available = !(this.getCommonSides(shape).size() == 0);
         ArrayList<Shape> allChunks = ServerEssentials.database.getAreaShapes();
         
-        int i = 0;
-        while(i < allChunks.size() && (shape.getPoint(0).getFloorX() != allChunks.get(i).getPoint(0).getFloorX() || shape.getPoint(0).getFloorY() != allChunks.get(i).getPoint(0).getFloorY())) {
-            i++;
+        if(available) {
+            int i = 0;
+            while(i < allChunks.size() && (shape.getPoint(0).getFloorX() != allChunks.get(i).getPoint(0).getFloorX() || shape.getPoint(0).getFloorY() != allChunks.get(i).getPoint(0).getFloorY())) {
+                i++;
+            }
+            available = (i == allChunks.size());
         }
-        available = (i == allChunks.size());
-        
+
         if(available) {
             this.chunks.add(shape);
         }
