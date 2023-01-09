@@ -10,6 +10,8 @@ import javax.annotation.Nonnull;
 
 import org.bukkit.Bukkit;
 
+import dev.littlebigowl.serveressentials.utils.Characters;
+
 public class OnReadyEvent extends ListenerAdapter{
     
     private final JDA bot;
@@ -69,6 +71,6 @@ public class OnReadyEvent extends ListenerAdapter{
                 .queue();
 
         }
-        Bukkit.getLogger().info("\u001b[38;5;43m@Bot \u001b[38;5;248m» \u001b[37;1m\u001b[3m" + event.getJDA().getSelfUser().getName() + "\u001b[0m\u001b[37;1m successfully logged in!\u001b[0m");
+        Bukkit.getLogger().info(Characters.PLUGIN_PREFIX + "PhiloCord started.");
     }
 }

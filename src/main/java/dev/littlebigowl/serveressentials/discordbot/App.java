@@ -9,6 +9,7 @@ import dev.littlebigowl.serveressentials.discordbot.events.OnMessageReceived;
 import dev.littlebigowl.serveressentials.discordbot.events.OnModalSubmit;
 import dev.littlebigowl.serveressentials.discordbot.events.OnReadyEvent;
 import dev.littlebigowl.serveressentials.models.Config;
+import dev.littlebigowl.serveressentials.utils.Characters;
 import dev.littlebigowl.serveressentials.utils.TeamUtil;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -78,7 +79,7 @@ public final class App {
     }
 
     public void stopBot() {
-        Bukkit.getLogger().info("\u001b[38;5;43m@Bot \u001b[38;5;248m» \u001b[37;1m\u001b[3m" + this.bot.getSelfUser().getName() + "\u001b[0m\u001b[37;1m successfully logged out.\u001b[0m");
+        Bukkit.getLogger().info(Characters.PLUGIN_PREFIX + "PhiloCord stopped.");
         this.bot.shutdown();
     }
 

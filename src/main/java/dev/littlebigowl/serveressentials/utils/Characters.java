@@ -21,5 +21,5 @@ public class Characters {
     public static final String PHILOCRAFTER_PREFIX = "PC";
     public static final String PHILOCRAFTER_PLUS_PREFIX = "PC+";
 
-    public static final String PLUGIN_PREFIX = "[ServerEssentials]";
+    public static final String PLUGIN_PREFIX = "[ServerEssentials] ";
 }

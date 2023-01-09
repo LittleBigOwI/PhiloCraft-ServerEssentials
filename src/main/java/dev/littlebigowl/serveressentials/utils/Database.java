@@ -330,5 +330,17 @@ public class Database {
         return area;
     }
 
+    public Area getAreaByName(UUID playerUUID, String name) {
+        ArrayList<Area> areas = ServerEssentials.database.playerAreas.get(playerUUID);
+        Area selectedArea = null;
+        for(Area area : areas) {
+            if(area.getName().equals(name)) {
+                selectedArea = area;
+            }
+        }
+
+        return selectedArea;
+    }
+
 }
 

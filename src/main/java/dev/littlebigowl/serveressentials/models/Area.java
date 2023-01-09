@@ -19,19 +19,19 @@ import de.bluecolored.bluemap.api.markers.MarkerSet;
 import de.bluecolored.bluemap.api.math.Color;
 import de.bluecolored.bluemap.api.math.Shape;
 import dev.littlebigowl.serveressentials.ServerEssentials;
-import net.md_5.bungee.api.ChatColor;
 
 public class Area {
     
     private String name;
     private UUID playerUUID;
     private String id;
+    private Shape shape;
+    private Color color;
     public ArrayList<Shape> chunks = new ArrayList<>();
     public HashMap<String, String> permissions = new HashMap<>();
-    private Shape shape;
     public long creationDate;
 
-    public Area(String areaName, UUID playerUUID, Shape shape) {
+    public Area(String areaName, UUID playerUUID, Shape shape, Color color) {
         this.name = areaName;
         this.playerUUID = playerUUID;
         this.id = areaName.replace(" ", "_");
@@ -40,6 +40,7 @@ public class Area {
         this.creationDate = System.currentTimeMillis() / 1000L;
         this.permissions.put("doMobGriefing", "true");
         this.permissions.put("doPVP", "true");
+        this.color = color;
     }
 
     private static boolean compareVector2d(Vector2d vector1, Vector2d vector2) {
@@ -273,10 +274,6 @@ public class Area {
         return points;
     }
 
-    public Player getPlayer() {
-        return Bukkit.getPlayer(this.playerUUID);
-    }
-
     public boolean addChunk(Shape shape) {
         boolean available = !(this.getCommonSides(shape).size() == 0);
         ArrayList<Shape> allChunks = ServerEssentials.database.getAreaShapes();
@@ -296,7 +293,7 @@ public class Area {
         return available;
     }
 
-    public void draw(ChatColor color) {
+    public void draw() {
         this.sortChunks(); 
         this.shape = this.chunks.get(0);
         ArrayList<Shape> unmergableChunks = new ArrayList<>();
@@ -315,7 +312,7 @@ public class Area {
             };
         }
 
-        int[] borderColor = new int[]{color.getColor().getRed(), color.getColor().getGreen(), color.getColor().getBlue()};
+        int[] borderColor = new int[]{this.color.getRed(), this.color.getGreen(), this.color.getBlue()};
         int[] fillcolor = new int[3];
         for(int k = 0; k < borderColor.length; k++) {
             if(borderColor[k] > 55) {
@@ -357,20 +354,30 @@ public class Area {
         });
     }
 
+    public Player getPlayer() {
+        return Bukkit.getPlayer(this.playerUUID);
+    }
+
     public String getName() {
         return this.name;
     }
 
-    public static Area getAreaByName(UUID playerUUID, String name) {
-        ArrayList<Area> areas = ServerEssentials.database.playerAreas.get(playerUUID);
-        Area selectedArea = null;
-        for(Area area : areas) {
-            if(area.getName().equals(name)) {
-                selectedArea = area;
-            }
-        }
+    public void setName(String label) {
+        this.name = label;
+        this.draw();
+    }
 
-        return selectedArea;
+    public void setColor(Color color) {
+        this.color = color;
+        this.draw();
+    }
+
+    public void setGroupName(String groupName) {
+        ServerEssentials.blueMapAPI.getWorld("world").ifPresent(world -> {
+            for(BlueMapMap map : world.getMaps()) {         
+                map.getMarkerSets().get(this.playerUUID.toString()).setLabel(groupName);
+            }
+        });
     }
 
 }
