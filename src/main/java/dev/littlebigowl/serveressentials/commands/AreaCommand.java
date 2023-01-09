@@ -65,6 +65,7 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
 
                 Shape shape = new Shape(new Vector2d(x, z), new Vector2d(x, z+16), new Vector2d(x+16, z+16), new Vector2d(x+16, z));
                 Area presentArea = ServerEssentials.database.getAreaFromPosition(shape);
+                
                 if(presentArea == null) {
                     Color color = new Color(TeamUtil.getTeamColor(playtime).getColor().getRed(), TeamUtil.getTeamColor(playtime).getColor().getGreen(), TeamUtil.getTeamColor(playtime).getColor().getBlue());
                     Area area = new Area(name, playerUUID, shape, color);
@@ -105,11 +106,8 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
 
 
             } else if(args[0].equals("edit") && args.length >= 3) {
-                int x = player.getLocation().getChunk().getX()*16;
-                int z = player.getLocation().getChunk().getZ()*16; //Bottom right corner of chunk
-                Shape shape =  new Shape(new Vector2d(x, z), new Vector2d(x, z+16), new Vector2d(x+16, z+16), new Vector2d(x+16, z)); //square
-
-                Area area = ServerEssentials.database.getAreaFromPosition(shape);
+                Area area = ServerEssentials.database.getAreaFromPosition(player.getLocation());
+                
                 if(area == null) {
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThere is no area at your position"));
 
@@ -150,18 +148,28 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aChanged area group name to \"" + groupName + "\""));
                 
                 } else if(args[1].equals("permissions")) {
-                    
+                    boolean value = true;
+                    if(args[3].equals("false")) { value = false; }
+
+                    if(args[2].equals("doMobGriefing")) {
+                        area.permissions.put("doMobGriefing", value);
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aChanged permission \"doMobGriefing\" to " + value));
+
+                    } else if(args[2].equals("doPVP")){
+                        area.permissions.put("doPVP", value);
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aChanged permission \"doPVP\" to " + value));
+
+                    } else {
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThat is not a valid permission"));
+
+                    }
                 }
 
 
             } else if(args[0].equals("subdue") && args.length >= 2) {
                 
             } else if(args[0].equals("info") && args.length == 1) {
-                int x = player.getLocation().getChunk().getX()*16;
-                int z = player.getLocation().getChunk().getZ()*16; //Bottom right corner of chunk
-                Shape shape =  new Shape(new Vector2d(x, z), new Vector2d(x, z+16), new Vector2d(x+16, z+16), new Vector2d(x+16, z)); //square
-                
-                Area area = ServerEssentials.database.getAreaFromPosition(shape);
+                Area area = ServerEssentials.database.getAreaFromPosition(player.getLocation());
 
                 if(area != null) {
                     String areaOwner = area.getPlayer().getName();

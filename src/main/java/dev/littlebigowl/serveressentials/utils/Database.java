@@ -17,6 +17,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 
+import com.flowpowered.math.vector.Vector2d;
+
 import de.bluecolored.bluemap.api.math.Shape;
 import dev.littlebigowl.serveressentials.ServerEssentials;
 import dev.littlebigowl.serveressentials.models.Area;
@@ -328,6 +330,14 @@ public class Database {
         }
 
         return area;
+    }
+
+    public Area getAreaFromPosition(Location loc) {
+        int x = loc.getChunk().getX()*16;
+        int z = loc.getChunk().getZ()*16;
+        Shape shape =  new Shape(new Vector2d(x, z), new Vector2d(x, z+16), new Vector2d(x+16, z+16), new Vector2d(x+16, z));
+
+        return this.getAreaFromPosition(shape);
     }
 
     public Area getAreaByName(UUID playerUUID, String name) {

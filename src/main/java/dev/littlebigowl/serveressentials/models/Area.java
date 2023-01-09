@@ -28,7 +28,7 @@ public class Area {
     private Shape shape;
     private Color color;
     public ArrayList<Shape> chunks = new ArrayList<>();
-    public HashMap<String, String> permissions = new HashMap<>();
+    public HashMap<String, Boolean> permissions = new HashMap<>();
     public long creationDate;
 
     public Area(String areaName, UUID playerUUID, Shape shape, Color color) {
@@ -38,8 +38,8 @@ public class Area {
         this.chunks.add(shape);
         this.shape = shape;
         this.creationDate = System.currentTimeMillis() / 1000L;
-        this.permissions.put("doMobGriefing", "true");
-        this.permissions.put("doPVP", "true");
+        this.permissions.put("doMobGriefing", true);
+        this.permissions.put("doPVP", true);
         this.color = color;
     }
 

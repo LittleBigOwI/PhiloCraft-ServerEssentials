@@ -71,6 +71,8 @@ public final class ServerEssentials extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new OnPlayerDeath(), this);
         getServer().getPluginManager().registerEvents(new OnAdvancementDoneEvent(), this);
         getServer().getPluginManager().registerEvents(new OnPlayerMove(), this);
+        getServer().getPluginManager().registerEvents(new OnEntityExplode(), this);
+        getServer().getPluginManager().registerEvents(new OnEntityDamage(), this);
 
         getCommand("tpa").setExecutor(new TpaCommand());
         getCommand("tpahere").setExecutor(new TpahereCommand());
