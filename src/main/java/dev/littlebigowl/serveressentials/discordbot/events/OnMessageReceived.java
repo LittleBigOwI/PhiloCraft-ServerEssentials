@@ -30,7 +30,7 @@ public class OnMessageReceived extends ListenerAdapter {
                 player.sendMessage(message);
             }
             
-            Bukkit.getLogger().info("\u001b[38;5;27m@" + Objects.requireNonNull(event.getMember()).getEffectiveName() + " \u001b[38;5;248m»\u001b[37;1m " + event.getMessage().getContentDisplay() + "\u001b[0m");
+            Bukkit.getLogger().info("[DI]" + Objects.requireNonNull(event.getMember()).getEffectiveName() + " » " + event.getMessage().getContentDisplay());
         }
     }
 }

@@ -113,7 +113,7 @@ public final class ServerEssentials extends JavaPlugin {
            blueMapAPI = api;
         });
 
-        Bukkit.getLogger().info("\u001b[38;5;206m@Server \u001b[38;5;248m» \u001b[37;1mServer started!\u001b[0m");
+        Bukkit.getLogger().info(Characters.PLUGIN_PREFIX + "Plugin started.");
 
         getServer().getScheduler().runTaskTimer(this, () -> {
 
@@ -150,6 +150,6 @@ public final class ServerEssentials extends JavaPlugin {
         );
         serverWebHook.sendEmbed(Colors.toInt(Colors.DANGER), Characters.SERVER_STOP + " **Server stopped.**");
 
-        Bukkit.getLogger().info("\u001b[38;5;206m@Server \u001b[38;5;248m» \u001b[37;1mServer stopped.\u001b[0m");
+        Bukkit.getLogger().info(Characters.PLUGIN_PREFIX + "Plugin stoppped.");
     }
 }
