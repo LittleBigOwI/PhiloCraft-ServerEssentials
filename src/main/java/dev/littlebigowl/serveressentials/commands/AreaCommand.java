@@ -116,12 +116,16 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
                     TextComponent ownerInfo = new TextComponent(ChatColor.translateAlternateColorCodes('&', "\n&r&b[Owner] - &r&3" + areaOwner));
                     TextComponent surfaceInfo = new TextComponent(ChatColor.translateAlternateColorCodes('&', "\n&r&b[Surface] - &r&3" + areaSurface + "m²"));
                     TextComponent creationInfo = new TextComponent(ChatColor.translateAlternateColorCodes('&', "\n&r&b[Creation] - &r&3" + creationDate));
+                    TextComponent griefInfo = new TextComponent(ChatColor.translateAlternateColorCodes('&', "\n&r&b[mobGriefing] - &r&3" + area.permissions.get("doMobGriefing")));
+                    TextComponent pvpInfo = new TextComponent(ChatColor.translateAlternateColorCodes('&', "\n&r&b[PVP] - &r&3" + area.permissions.get("doPVP")));
 
                     surfaceInfo.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(ChatColor.translateAlternateColorCodes('&', "&b" + area.chunks.size() + "&r 16 by 16 chunks"))));
 
                     title.addExtra(ownerInfo);
                     title.addExtra(surfaceInfo);
                     title.addExtra(creationInfo);
+                    title.addExtra(griefInfo);
+                    title.addExtra(pvpInfo);
 
                     player.spigot().sendMessage(title);
                 } else {
