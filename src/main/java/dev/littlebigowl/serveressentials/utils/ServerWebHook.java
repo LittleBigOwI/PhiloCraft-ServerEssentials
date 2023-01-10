@@ -48,7 +48,7 @@ public class ServerWebHook {
 
     public void sendEmbed(int color, String messageContent, String authorAvatarURL) {
         WebhookMessageBuilder builder = new WebhookMessageBuilder();
-        builder.addEmbeds(new WebhookEmbedBuilder().setColor(color).setAuthor(new WebhookEmbed.EmbedAuthor(messageContent, authorAvatarURL, "")).build());
+        builder.addEmbeds(new WebhookEmbedBuilder().setColor(color).setAuthor(new WebhookEmbed.EmbedAuthor(messageContent, authorAvatarURL, null)).build());
         builder.setAvatarUrl(this.avatarURL);
         builder.setUsername(this.username);
 

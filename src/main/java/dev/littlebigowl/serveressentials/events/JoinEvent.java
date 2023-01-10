@@ -25,7 +25,7 @@ public class JoinEvent implements Listener {
             "Server",
             Config.get().getString("DiscordWebhookAvatarURL")
         );
-        serverWebHook.sendEmbed(Colors.toInt(Colors.DANGER), TeamUtil.getTeamPrefix(Math.round(player.getStatistic(Statistic.PLAY_ONE_MINUTE)/1200)) + " " + event.getPlayer().getName() + " joined the game.", "https://minotar.net/avatar/" + player.getName() + ".png");
+        serverWebHook.sendEmbed(Colors.toInt(Colors.SUCCESS), "[" + TeamUtil.getTeamPrefix(Math.round(player.getStatistic(Statistic.PLAY_ONE_MINUTE)/1200)) + "] " + player.getName() + " joined the game.", "https://minotar.net/avatar/" + player.getName() + ".png"); 
 
         event.setJoinMessage(msg);
         

@@ -163,6 +163,40 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThat is not a valid permission"));
 
                     }
+                } else if(args[1].equals("enterSplash")) {
+                    if(args[2].equals("remove")) {
+                        area.setEnterSplash(null);
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aRemoved enter splash text"));
+
+                    } else if(args[2].equals("set")){
+                        String splash = "";
+                        for(int i = 3; i < args.length; i++) {
+                            splash = splash + " " + args[i];
+                        }
+                        splash = splash.substring(1);
+
+                        area.setEnterSplash(splash);
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSet the enter splash text to \"" + splash + "\""));
+                    }
+
+                    
+                }  else if(args[1].equals("leaveSplash")) {
+                    if(args[2].equals("remove")) {
+                        area.setOutSplash(null);
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aRemoved leave splash text"));
+
+                    } else if(args[2].equals("set")){
+                        String splash = "";
+                        for(int i = 3; i < args.length; i++) {
+                            splash = splash + " " + args[i];
+                        }
+                        splash = splash.substring(1);
+
+                        area.setOutSplash(splash);
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSet the leave splash text to \"" + splash + "\""));
+                    }
+
+
                 }
 
 
@@ -222,10 +256,13 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
             return ServerEssentials.database.getAreaNames(player.getUniqueId());
 
         } else if(label.equalsIgnoreCase("area") && args.length == 2 && args[0].equals("edit")) {
-            return Arrays.asList("name", "color", "groupName", "permissions");
+            return Arrays.asList("name", "color", "groupName", "permissions", "enterSplash", "leaveSplash");
 
         } else if(label.equalsIgnoreCase("area") && args.length == 3 && args[0].equals("edit") && args[1].equals("permissions")) {
             return permissions;
+
+        } else if(label.equalsIgnoreCase("area") && args.length == 3 && args[0].equals("edit") && (args[1].equals("enterSplash") || args[1].equals("leaveSplash"))) {
+            return Arrays.asList("set", "remove");
 
         } else if(label.equalsIgnoreCase("area") && args.length == 4 && args[0].equals("edit") && args[1].equals("permissions") && permissions.contains(args[2])) {
             return Arrays.asList("true", "false");

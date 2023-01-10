@@ -19,6 +19,7 @@ import de.bluecolored.bluemap.api.markers.MarkerSet;
 import de.bluecolored.bluemap.api.math.Color;
 import de.bluecolored.bluemap.api.math.Shape;
 import dev.littlebigowl.serveressentials.ServerEssentials;
+import net.md_5.bungee.api.ChatColor;
 
 public class Area {
     
@@ -27,6 +28,8 @@ public class Area {
     private String id;
     private Shape shape;
     private Color color;
+    private String enterSplash;
+    private String outSplash;
     public ArrayList<Shape> chunks = new ArrayList<>();
     public HashMap<String, Boolean> permissions = new HashMap<>();
     public long creationDate;
@@ -41,6 +44,8 @@ public class Area {
         this.permissions.put("doMobGriefing", true);
         this.permissions.put("doPVP", true);
         this.color = color;
+        this.enterSplash = null;
+        this.outSplash = null;
     }
 
     private static boolean compareVector2d(Vector2d vector1, Vector2d vector2) {
@@ -378,6 +383,30 @@ public class Area {
                 map.getMarkerSets().get(this.playerUUID.toString()).setLabel(groupName);
             }
         });
+    }
+
+    public void setEnterSplash(String splash) {
+        if(splash == null) {
+            this.enterSplash = null;
+        } else {
+            this.enterSplash = ChatColor.translateAlternateColorCodes('&', splash);
+        }
+    }
+
+    public String getEnterSplash() {
+        return this.enterSplash;
+    }
+
+    public void setOutSplash(String splash) {
+        if(splash == null) {
+            this.outSplash = null;
+        } else {
+            this.outSplash = ChatColor.translateAlternateColorCodes('&', splash);
+        }
+    }
+
+    public String getOutSplash() {
+        return this.outSplash;
     }
 
 }
