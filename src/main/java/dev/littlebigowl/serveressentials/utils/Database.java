@@ -18,6 +18,8 @@ import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.bukkit.Statistic;
+import org.bukkit.entity.Player;
 
 import com.flowpowered.math.vector.Vector2d;
 
@@ -469,6 +471,18 @@ public class Database {
         ServerEssentials.database.cachedplayerAreas.get(area.getPlayer().getUniqueId()).remove(area);
         connection.createStatement().executeUpdate("DELETE FROM Areas WHERE ID='" + area.getId() + "'");
         area.delete();
+    }
+
+    public int getPlayerAvailableChunks(Player player) {
+        int claimedChunks = 0;
+        int playtime = Math.round(player.getStatistic(Statistic.PLAY_ONE_MINUTE)/1200)/60;
+        ArrayList<Area> playerAreas = ServerEssentials.database.cachedplayerAreas.get(player.getUniqueId());
+        
+        for(Area playerArea : playerAreas) {
+            claimedChunks += playerArea.chunks.size();
+        }
+
+        return playtime - claimedChunks;
     }
 
 }

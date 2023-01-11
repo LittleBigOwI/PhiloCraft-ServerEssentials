@@ -506,6 +506,9 @@ public class Area {
         ServerEssentials.blueMapAPI.getWorld("world").ifPresent(world -> {
             for(BlueMapMap map : world.getMaps()) {         
                 map.getMarkerSets().get(this.playerUUID.toString()).remove(this.id + "");
+                if(ServerEssentials.database.cachedplayerAreas.get(this.playerUUID).size() == 0) {
+                    map.getMarkerSets().remove(this.playerUUID.toString());
+                }
             }
         });
     }
