@@ -115,6 +115,16 @@ public class Database {
         results = statement.executeQuery();
 
         while(results.next()) {
+            String[] areaStringLocation = results.getString("location").split(":");
+
+            Location areaLocation = new Location(
+                    Bukkit.getServer().getWorld("world"),
+                    Float.parseFloat(areaStringLocation[0]),
+                    Float.parseFloat(areaStringLocation[1]),
+                    Float.parseFloat(areaStringLocation[2]),
+                    Float.parseFloat(areaStringLocation[3]),
+                    Float.parseFloat(areaStringLocation[4])
+            );
             
             Area area = new Area(
                 Integer.parseInt(results.getString("id")),
@@ -123,6 +133,7 @@ public class Database {
                 results.getString("groupName"),
                 Area.fromAreaStringChunks(results.getString("chunks")),
                 new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(results.getString("creation")).getTime(),
+                areaLocation,
                 Boolean.parseBoolean(results.getString("doMobGriefing")),
                 Boolean.parseBoolean(results.getString("doPVP")),
                 new Color(results.getString("color")),
@@ -383,8 +394,21 @@ public class Database {
         return selectedArea;
     }
 
-    public Area createArea(String name, UUID playerUUID, Shape shape, Color color) throws SQLException {
-        Area area = new Area(name, playerUUID, shape, color);
+    public Area createArea(String name, UUID playerUUID, Shape shape, Color color, Location location) throws SQLException {
+        
+        double x = location.getX();
+        double y = location.getY();
+        double z = location.getZ();
+        double yaw = location.getYaw();
+        double pitch = location.getPitch();
+
+        String loc = x +
+                ":" + y +
+                ":" + z +
+                ":" + yaw +
+                ":" + pitch;
+
+        Area area = new Area(name, playerUUID, shape, color, location);
         ServerEssentials.database.cachedplayerAreas.get(playerUUID).add(area);
         
         String hexColor = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
@@ -406,7 +430,8 @@ public class Database {
             name.replace("'", "''") + "', '" +
             area.getGroupName().replace("'", "''") + "', '" +
             area.getAreaStringChunks() + "', " + 
-            "FROM_UNIXTIME(" + area.creationDate + "), " + 
+            "FROM_UNIXTIME(" + area.creationDate + "), '" + 
+            loc + "', " +
             area.permissions.get("doMobGriefing") + ", " +
             area.permissions.get("doPVP") + ", '" +
             hexColor + "', " +
@@ -483,6 +508,24 @@ public class Database {
         }
 
         return playtime - claimedChunks;
+    }
+
+    public ArrayList<String> getAreaStringIds() {
+        ArrayList<String> names = new ArrayList<>();
+        for(Area area : this.getAreas()) {
+            names.add(Integer.toString(area.getId()));
+        }
+
+        return names;
+    }
+
+    public Area getAreaById(int id) {
+        for(Area area : this.getAreas()) {
+            if(area.getId() == id) {
+                return area;
+            }
+        }
+        return null;
     }
 
 }

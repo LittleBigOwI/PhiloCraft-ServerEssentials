@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import com.flowpowered.math.vector.Vector2d;
@@ -33,11 +34,12 @@ public class Area {
     private String enterSplash;
     private String outSplash;
     private String groupName;
+    private Location location;
     public ArrayList<Shape> chunks = new ArrayList<>();
     public HashMap<String, Boolean> permissions = new HashMap<>();
     public long creationDate;
 
-    public Area(String areaName, UUID playerUUID, Shape shape, Color color) {
+    public Area(String areaName, UUID playerUUID, Shape shape, Color color, Location location) {
         int id = 0;
         
         ArrayList<Integer> ids = new ArrayList<>();
@@ -66,6 +68,7 @@ public class Area {
         this.shape = shape;
         this.chunks.add(shape);
         this.creationDate = Instant.now().getEpochSecond();
+        this.location = location;
         this.permissions.put("doMobGriefing", true);
         this.permissions.put("doPVP", true);
         this.color = color;
@@ -73,13 +76,14 @@ public class Area {
         this.outSplash = null;
     }
 
-    public Area(int id, UUID playerUUID, String name, String groupName, ArrayList<Shape> shapes, long creationDate, boolean doMobGriefing, boolean doPVP, Color color, String enterSplash, String outSplash) {
+    public Area(int id, UUID playerUUID, String name, String groupName, ArrayList<Shape> shapes, long creationDate, Location location, boolean doMobGriefing, boolean doPVP, Color color, String enterSplash, String outSplash) {
         this.id = id;
         this.playerUUID = playerUUID;
         this.name = name;
         this.groupName = groupName;
         this.chunks = shapes;
         this.creationDate = creationDate;
+        this.location = location;
         this.permissions.put("doMobGriefing", doMobGriefing);
         this.permissions.put("doPVP", doPVP);
         this.color = color;
@@ -511,5 +515,13 @@ public class Area {
                 }
             }
         });
+    }
+
+    public UUID getPlayerUUID() {
+        return this.playerUUID;
+    }
+
+    public void teleport(Player player) {
+        player.teleport(this.location);
     }
 }

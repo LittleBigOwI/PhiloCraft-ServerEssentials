@@ -38,6 +38,12 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
             UUID playerUUID = player.getUniqueId();
             
             if(args[0].equals("create") && args.length >= 2) {
+                int remainingPlayerChunks = ServerEssentials.database.getPlayerAvailableChunks(player);
+                if(remainingPlayerChunks <= 0) {
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYou don't have enough to claim chunks anymore"));
+                    return true;
+                }
+
                 String name = "";
                 for(int i = 1; i < args.length; i++) {
                     name = name + " " + args[i];
@@ -65,7 +71,7 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
                     Area area;
                     try {
                         ServerEssentials.database.resetConnection();
-                        area = ServerEssentials.database.createArea(name, playerUUID, shape, color);
+                        area = ServerEssentials.database.createArea(name, playerUUID, shape, color, player.getLocation());
                     } catch (SQLException e) {
                         e.printStackTrace();
                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cError creating area"));
@@ -281,8 +287,8 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYou do not own this area"));
                 }
                 
-            } else if(args[0].equals("info") && args.length == 1) {
-                Area area = ServerEssentials.database.getAreaFromPosition(player.getLocation());
+            } else if(args[0].equals("info") && args.length >= 1) {
+                Area area = ServerEssentials.database.getAreaFromPosition(player.getLocation()); 
 
                 if(area != null) {
                     String areaOwner = area.getPlayer().getName();
@@ -290,6 +296,7 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
                     int areaSurface = (16*16)*area.chunks.size();
 
                     TextComponent title = new TextComponent(ChatColor.translateAlternateColorCodes('&', "&f&lArea Info:&r"));
+                    TextComponent idInfo = new TextComponent(ChatColor.translateAlternateColorCodes('&', "\n&r&b[ID] - &r&3" + area.getId()));
                     TextComponent nameInfo = new TextComponent(ChatColor.translateAlternateColorCodes('&', "\n&r&b[Name] - &r&3\"" + area.getName() + "\""));
                     TextComponent ownerInfo = new TextComponent(ChatColor.translateAlternateColorCodes('&', "\n&r&b[Owner] - &r&3" + areaOwner));
                     TextComponent surfaceInfo = new TextComponent(ChatColor.translateAlternateColorCodes('&', "\n&r&b[Surface] - &r&3" + areaSurface + "m²"));
@@ -299,6 +306,7 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
 
                     surfaceInfo.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(ChatColor.translateAlternateColorCodes('&', "&b" + area.chunks.size() + "&r 16 by 16 chunks"))));
 
+                    title.addExtra(idInfo);
                     title.addExtra(ownerInfo);
                     title.addExtra(nameInfo);
                     title.addExtra(surfaceInfo);
@@ -331,12 +339,13 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
                 } else {
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYou do not own this area"));
                 }
-            } else if(args[0].equals("get") && args.length == 2) {
+
+            } else if(args[0].equals("get") && args.length >= 2) {
                 if(args[1].equals("chunks")) {
                     int remainingPlayerChunks = ServerEssentials.database.getPlayerAvailableChunks(player);
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&eYou have &6" + remainingPlayerChunks + "&e remaining chunks to claim"));
 
-                } else if(args[1].equals("areas")) {
+                } else if(args[1].equals("areas") && args.length == 2) {
                     ArrayList<Area> playerAreas = ServerEssentials.database.cachedplayerAreas.get(playerUUID);
                     StringBuffer areaList = new StringBuffer();
 
@@ -357,7 +366,11 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
                     }
                     areaList.delete(areaList.length()-7, areaList.length());
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', areaList.toString()));
+                
                 }
+            
+            } else if(args[0].equals("teleport") && args.length >= 1) {
+                
             }
         }
     
@@ -373,7 +386,7 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
         }
 
         if(label.equalsIgnoreCase("area") && args.length == 1) {
-            return Arrays.asList("create", "expand", "edit", "delete", "subdue", "info", "get");
+            return Arrays.asList("create", "expand", "edit", "delete", "subdue", "info", "get"); //teleport
 
         } else if(label.equalsIgnoreCase("area") && args.length == 2 && args[0].equals("expand")) {
             return ServerEssentials.database.getAreaNames(player.getUniqueId());
@@ -383,6 +396,9 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
 
         } else if(label.equalsIgnoreCase("area") && args.length == 2 && args[0].equals("get")) {
             return Arrays.asList("chunks", "areas");
+
+        } else if(label.equalsIgnoreCase("area") && args.length == 2 && args[0].equals("teleport")) {
+            return new ArrayList<>();//ServerEssentials.database.getAreaStringIds();
 
         } else if(label.equalsIgnoreCase("area") && args.length == 3 && args[0].equals("edit") && args[1].equals("permissions")) {
             return permissions;
