@@ -31,7 +31,8 @@ public final class ServerEssentials extends JavaPlugin {
     public static BlueMapAPI blueMapAPI;
     public static HashMap<Player, Player> tpa = new HashMap<>();
 
-    private static ServerEssentials plugin;
+    private static ServerEssentials plugin;    
+    private TeamUtil teamUtil;
     private App bot;
 
     public static ServerEssentials getPlugin() {
@@ -44,19 +45,6 @@ public final class ServerEssentials extends JavaPlugin {
         Config.setup();
         Config.get().options().copyDefaults(true);
         Config.save();
-
-        plugin = this;
-        try {
-            database = new Database(
-                Config.get().getString("DatabaseHost"), 
-                Config.get().getString("DatabaseName"), 
-                Config.get().getString("DatabaseUser"), 
-                Config.get().getString("DatabasePassword")
-            );
-            bot = new App();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
 
         ServerWebHook serverWebHook = new ServerWebHook(
             Config.get().getString("DiscordWebhookURL"),
@@ -73,6 +61,7 @@ public final class ServerEssentials extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new OnPlayerMove(), this);
         getServer().getPluginManager().registerEvents(new OnEntityExplode(), this);
         getServer().getPluginManager().registerEvents(new OnEntityDamage(), this);
+        getServer().getPluginManager().registerEvents(new OnEntityChangeBlock(), this);
 
         getCommand("tpa").setExecutor(new TpaCommand());
         getCommand("tpahere").setExecutor(new TpahereCommand());
@@ -100,19 +89,32 @@ public final class ServerEssentials extends JavaPlugin {
         objective.setDisplaySlot(DisplaySlot.PLAYER_LIST);
         health.setDisplaySlot(DisplaySlot.BELOW_NAME);
 
-        TeamUtil teamUtil = new TeamUtil(
-            scoreboard,
-            Config.get().getString("GuestRole"),
-            Config.get().getString("PlayerRole"),
-            Config.get().getString("PlayerPlusRole"),
-            Config.get().getString("MemberRole"),
-            Config.get().getString("PhiloCrafterRole"),
-            Config.get().getString("PhiloCrafterPlusRole"),
-            Config.get().getString("LinkedRole")
-        );
-
         BlueMapAPI.onEnable(api -> {
-           blueMapAPI = api;
+            blueMapAPI = api;
+            
+            plugin = this;
+            try {
+                database = new Database(
+                    Config.get().getString("DatabaseHost"), 
+                    Config.get().getString("DatabaseName"), 
+                    Config.get().getString("DatabaseUser"), 
+                    Config.get().getString("DatabasePassword")
+                );
+                bot = new App();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            teamUtil = new TeamUtil(
+                scoreboard,
+                Config.get().getString("GuestRole"),
+                Config.get().getString("PlayerRole"),
+                Config.get().getString("PlayerPlusRole"),
+                Config.get().getString("MemberRole"),
+                Config.get().getString("PhiloCrafterRole"),
+                Config.get().getString("PhiloCrafterPlusRole"),
+                Config.get().getString("LinkedRole")
+            );
         });
 
         Bukkit.getLogger().info(Characters.PLUGIN_PREFIX + "Plugin started.");
@@ -120,21 +122,23 @@ public final class ServerEssentials extends JavaPlugin {
         getServer().getScheduler().runTaskTimer(this, () -> {
 
             for (Player player : getServer().getOnlinePlayers()) {
-                Score score = objective.getScore(player.getName());
-                int playtime = Math.round(player.getStatistic(Statistic.PLAY_ONE_MINUTE)/1200);
-                score.setScore(Math.round(playtime/60));
-                
-                Team team = teamUtil.getTeam(playtime);
-
-                if(!(team.hasEntry(player.getName()))) {
-                    team.addEntry(player.getName());
+                if(blueMapAPI != null){    
+                    Score score = objective.getScore(player.getName());
+                    int playtime = Math.round(player.getStatistic(Statistic.PLAY_ONE_MINUTE)/1200);
+                    score.setScore(Math.round(playtime/60));
                     
-                    if(ServerEssentials.database.cachedPlayerDiscords.containsKey(player.getUniqueId())) {
-                        bot.updateRoles(player, playtime, Config.get().getString("GuildID"));
+                    Team team = teamUtil.getTeam(playtime);
+
+                    if(!(team.hasEntry(player.getName()))) {
+                        team.addEntry(player.getName());
+                        
+                        if(ServerEssentials.database.cachedPlayerDiscords.containsKey(player.getUniqueId())) {
+                            bot.updateRoles(player, playtime, Config.get().getString("GuildID"));
+                        }
                     }
+                    TeamUtil.updatePlayerTablist(player);
+                    player.setScoreboard(scoreboard);
                 }
-                TeamUtil.updatePlayerTablist(player);
-                player.setScoreboard(scoreboard);
             }
         }, 0, 10);
     }
@@ -143,7 +147,7 @@ public final class ServerEssentials extends JavaPlugin {
     public void onDisable(){
 
         bot.stopBot();
-        try { database.closeConnection(); } catch (SQLException e) {Bukkit.getLogger().info(e.toString());}
+        try { database.closeConnection(); } catch (SQLException e) { Bukkit.getLogger().info(e.toString()); }
 
         ServerWebHook serverWebHook = new ServerWebHook(
             Config.get().getString("DiscordWebhookURL"),

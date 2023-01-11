@@ -3,6 +3,8 @@ package dev.littlebigowl.serveressentials.utils;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
@@ -19,6 +21,7 @@ import org.bukkit.Particle;
 
 import com.flowpowered.math.vector.Vector2d;
 
+import de.bluecolored.bluemap.api.math.Color;
 import de.bluecolored.bluemap.api.math.Shape;
 import dev.littlebigowl.serveressentials.ServerEssentials;
 import dev.littlebigowl.serveressentials.models.Area;
@@ -32,7 +35,7 @@ public class Database {
     public BidiMap<UUID, String> cachedPlayerDiscords = new DualHashBidiMap<>();
     public HashMap<UUID, String> cachedPlayerCodes = new HashMap<>();
     public HashMap<String, String> playerRoles = new HashMap<>();
-    public HashMap<UUID, ArrayList<Area>> playerAreas = new HashMap<>();
+    public HashMap<UUID, ArrayList<Area>> cachedplayerAreas = new HashMap<>();
     
     private Connection connection;
     private String host;
@@ -40,7 +43,7 @@ public class Database {
     private String user;
     private String password;
 
-    public Database(String host, String database, String user, String password) throws SQLException {
+    public Database(String host, String database, String user, String password) throws SQLException, NumberFormatException, ParseException {
     
         this.host = host;
         this.database = database;
@@ -104,6 +107,32 @@ public class Database {
 
         while(results.next()) {
             cachedPlayerDiscords.put(UUID.fromString(results.getString("UUID")), results.getString("ID"));
+        }
+
+        statement = connection.prepareStatement("SELECT * FROM Areas");
+        results = statement.executeQuery();
+
+        while(results.next()) {
+            
+            Area area = new Area(
+                Integer.parseInt(results.getString("id")),
+                UUID.fromString(results.getString("UUID")),
+                results.getString("name"),
+                results.getString("groupName"),
+                Area.fromAreaStringChunks(results.getString("chunks")),
+                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(results.getString("creation")).getTime(),
+                Boolean.parseBoolean(results.getString("doMobGriefing")),
+                Boolean.parseBoolean(results.getString("doPVP")),
+                new Color(results.getString("color")),
+                results.getString("enterSplash"),
+                results.getString("leaveSplash")
+            );
+
+            if(!cachedplayerAreas.containsKey(UUID.fromString(results.getString("UUID")))) {
+                cachedplayerAreas.put(UUID.fromString(results.getString("UUID")), new ArrayList<>());
+            }
+            cachedplayerAreas.get(UUID.fromString(results.getString("UUID"))).add(area);
+            area.draw();
         }
 
     }
@@ -272,7 +301,7 @@ public class Database {
     //!Areas
     public ArrayList<String> getAreaNames(UUID playerUUID) {
         ArrayList<String> areaNames = new ArrayList<>();
-        ArrayList<Area> areas = ServerEssentials.database.playerAreas.get(playerUUID);
+        ArrayList<Area> areas = ServerEssentials.database.cachedplayerAreas.get(playerUUID);
         
         if(areas != null) {
             for(Area area : areas) {
@@ -285,7 +314,7 @@ public class Database {
     public ArrayList<Area> getAreas() {
         ArrayList<Area> allAreas = new ArrayList<>();
 
-        for(ArrayList<Area> playerAreas : ServerEssentials.database.playerAreas.values()) {
+        for(ArrayList<Area> playerAreas : ServerEssentials.database.cachedplayerAreas.values()) {
             for(Area playerArea : playerAreas) {
                 allAreas.add(playerArea);
             }
@@ -341,7 +370,7 @@ public class Database {
     }
 
     public Area getAreaByName(UUID playerUUID, String name) {
-        ArrayList<Area> areas = ServerEssentials.database.playerAreas.get(playerUUID);
+        ArrayList<Area> areas = ServerEssentials.database.cachedplayerAreas.get(playerUUID);
         Area selectedArea = null;
         for(Area area : areas) {
             if(area.getName().equals(name)) {
@@ -350,6 +379,96 @@ public class Database {
         }
 
         return selectedArea;
+    }
+
+    public Area createArea(String name, UUID playerUUID, Shape shape, Color color) throws SQLException {
+        Area area = new Area(name, playerUUID, shape, color);
+        ServerEssentials.database.cachedplayerAreas.get(playerUUID).add(area);
+        
+        String hexColor = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+
+        String enterSplash = area.getEnterSplash();
+        String outSplash = area.getOutSplash();
+
+        if(enterSplash != null) {
+            enterSplash = "'" + enterSplash.replace("'", "''") + "'";
+        }
+
+        if(outSplash != null) {
+            outSplash = "'" + outSplash.replace("'", "''") + "'";
+        }
+
+        connection.createStatement().executeUpdate(
+            "INSERT INTO Areas VALUES(" + area.getId() + ", '" + 
+            playerUUID.toString() + "', '" + 
+            name.replace("'", "''") + "', '" +
+            area.getGroupName().replace("'", "''") + "', '" +
+            area.getAreaStringChunks() + "', " + 
+            "FROM_UNIXTIME(" + area.creationDate + "), " + 
+            area.permissions.get("doMobGriefing") + ", " +
+            area.permissions.get("doPVP") + ", '" +
+            hexColor + "', " +
+            enterSplash + ", " +
+            outSplash + ")"
+        );
+        
+        return area;
+    }
+
+    public boolean expandArea(Area area, Shape shape) throws SQLException {
+        boolean worked = area.addChunk(shape);
+
+        if(worked) {
+            connection.createStatement().executeUpdate("UPDATE Areas SET chunks='" + area.getAreaStringChunks() + "' WHERE ID=" + area.getId());
+        }
+
+        return worked;
+    }
+
+    public void updateAreaName(Area area, String name) throws SQLException {
+        area.setName(name);
+        connection.createStatement().executeUpdate("UPDATE Areas SET name='" + name.replace("'", "''") + "' WHERE ID=" + area.getId());
+    }
+
+    public void updateAreaGroupName(Area area, String groupName) throws SQLException {
+        ArrayList<Area> playerAreas = ServerEssentials.database.cachedplayerAreas.get(area.getPlayer().getUniqueId());
+        
+        for(Area playerArea : playerAreas) {
+            playerArea.setGroupName(groupName);
+            connection.createStatement().executeUpdate("UPDATE Areas SET groupName='" + groupName.replace("'", "''") + "' WHERE ID=" + playerArea.getId());
+        }
+    }
+
+    public void updateAreaColor(Area area, Color color) throws SQLException {
+        area.setColor(color);
+        String hexColor = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+        connection.createStatement().executeUpdate("UPDATE Areas SET color='" + hexColor + "' WHERE ID=" + area.getId());
+    }
+
+    public void updateAreaPermissions(Area area, String permission, boolean value) throws SQLException {
+        area.permissions.put(permission, value);
+        connection.createStatement().executeUpdate("UPDATE Areas SET " + permission + "=" + value + " WHERE ID=" + area.getId());
+    }
+
+    public void updateAreaEnterSplash(Area area, String splash) throws SQLException {
+        area.setEnterSplash(splash);
+        connection.createStatement().executeUpdate("UPDATE Areas SET enterSplash='" + splash.replace("'", "''") + "' WHERE ID=" + area.getId());
+    }
+
+    public void updateAreaOutSplash(Area area, String splash) throws SQLException {
+        area.setOutSplash(splash);
+        connection.createStatement().executeUpdate("UPDATE Areas SET leaveSplash='" + splash.replace("'", "''") + "' WHERE ID=" + area.getId());
+    }
+
+    public void removeAreaChunk(Area area, Shape shape) throws SQLException {
+        area.removeChunk(shape);
+        connection.createStatement().executeUpdate("UPDATE Areas SET chunks='" + area.getAreaStringChunks() + "' WHERE ID=" + area.getId());
+    }
+
+    public void deleteArea(Area area) throws SQLException {
+        ServerEssentials.database.cachedplayerAreas.get(area.getPlayer().getUniqueId()).remove(area);
+        connection.createStatement().executeUpdate("DELETE FROM Areas WHERE ID='" + area.getId() + "'");
+        area.delete();
     }
 
 }

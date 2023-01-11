@@ -1,5 +1,6 @@
 package dev.littlebigowl.serveressentials.commands;
 
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,16 +44,9 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
                 }
                 name = name.substring(1);
                 
-                ArrayList<Area> areas = ServerEssentials.database.playerAreas.get(playerUUID);
-                if(areas == null) { ServerEssentials.database.playerAreas.put(playerUUID, new ArrayList<Area>()); }
-                areas = ServerEssentials.database.playerAreas.get(playerUUID);
-
-                for (Area area : areas) {
-                    if(area.getName().equals(name)) {
-                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYou already have an area with the same name."));
-                        return true;
-                    }
-                }
+                ArrayList<Area> areas = ServerEssentials.database.cachedplayerAreas.get(playerUUID);
+                if(areas == null) { ServerEssentials.database.cachedplayerAreas.put(playerUUID, new ArrayList<Area>()); }
+                areas = ServerEssentials.database.cachedplayerAreas.get(playerUUID);
 
                 if(areas.size() >= 2) {
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYou have reached the maximum amount of areas a player can have."));
@@ -68,8 +62,15 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
                 
                 if(presentArea == null) {
                     Color color = new Color(TeamUtil.getTeamColor(playtime).getColor().getRed(), TeamUtil.getTeamColor(playtime).getColor().getGreen(), TeamUtil.getTeamColor(playtime).getColor().getBlue());
-                    Area area = new Area(name, playerUUID, shape, color);
-                    ServerEssentials.database.playerAreas.get(playerUUID).add(area);
+                    Area area;
+                    try {
+                        ServerEssentials.database.resetConnection();
+                        area = ServerEssentials.database.createArea(name, playerUUID, shape, color);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cError creating area"));
+                        return true;
+                    }
                     
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully created area"));
                     area.draw();
@@ -92,16 +93,23 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
 
                 Area area = ServerEssentials.database.getAreaByName(playerUUID, areaName);
                 
-                if(area != null && area.addChunk(shape)) {
-                   player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aAdded chunk to your area"));
-                   area.draw();
+                try {
+                    ServerEssentials.database.resetConnection();
+                    if(area != null && ServerEssentials.database.expandArea(area, shape)) {
+                       player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aAdded chunk to your area"));
+                       area.draw();
 
-                } else if(area != null){
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThis chunk can't be added to your area."));
+                    } else if(area != null){
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThis chunk can't be added to your area."));
 
-                } else {
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThis area cannot be found."));
+                    } else {
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThis area cannot be found."));
 
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cError expanding area"));
+                    return true;
                 }
 
 
@@ -121,7 +129,14 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
                     }
                     areaName = areaName.substring(1);
                     
-                    area.setName(areaName);
+                    try {
+                        ServerEssentials.database.resetConnection();
+                        ServerEssentials.database.updateAreaName(area, areaName);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cSomething went wrong"));
+                        return true;
+                    }
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aChanged area name to \"" + areaName + "\""));
 
                 } else if(args[1].equals("color")) {
@@ -131,7 +146,8 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
                         int b = java.awt.Color.decode(args[2]).getBlue();
                         Color color = new Color(r, g, b);
 
-                        area.setColor(color);
+                        ServerEssentials.database.resetConnection();
+                        ServerEssentials.database.updateAreaColor(area, color);
                         player.sendMessage(ChatColor.GREEN + "Changed area color to " + ChatColor.RESET + "" + ChatColor.of(new java.awt.Color(r, g, b)) + args[2]);
 
                     } catch(Exception e) {
@@ -144,7 +160,15 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
                         groupName = groupName + " " + args[i];
                     }
                     groupName = groupName.substring(1);
-                    area.setGroupName(groupName);
+                    try {
+                        ServerEssentials.database.resetConnection();
+                        ServerEssentials.database.updateAreaGroupName(area, groupName);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cSomething went wrong"));
+                        return true;
+                    }
+                    
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aChanged area group name to \"" + groupName + "\""));
                 
                 } else if(args[1].equals("permissions")) {
@@ -152,11 +176,25 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
                     if(args[3].equals("false")) { value = false; }
 
                     if(args[2].equals("doMobGriefing")) {
-                        area.permissions.put("doMobGriefing", value);
+                        try {
+                            ServerEssentials.database.resetConnection();
+                            ServerEssentials.database.updateAreaPermissions(area, "doMobGriefing", value);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cSomething went wrong"));
+                            return true;
+                        }
                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aChanged permission \"doMobGriefing\" to " + value));
 
                     } else if(args[2].equals("doPVP")){
-                        area.permissions.put("doPVP", value);
+                        try {
+                            ServerEssentials.database.resetConnection();
+                            ServerEssentials.database.updateAreaPermissions(area, "doPVP", value);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cSomething went wrong"));
+                            return true;
+                        }
                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aChanged permission \"doPVP\" to " + value));
 
                     } else {
@@ -175,7 +213,14 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
                         }
                         splash = splash.substring(1);
 
-                        area.setEnterSplash(splash);
+                        try {
+                            ServerEssentials.database.resetConnection();
+                            ServerEssentials.database.updateAreaEnterSplash(area, splash);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cSomething went wrong"));
+                            return true;
+                        }
                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSet the enter splash text to \"" + splash + "\""));
                     }
 
@@ -192,7 +237,14 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
                         }
                         splash = splash.substring(1);
 
-                        area.setOutSplash(splash);
+                        try {
+                            ServerEssentials.database.resetConnection();
+                            ServerEssentials.database.updateAreaOutSplash(area, splash);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cSomething went wrong"));
+                            return true;
+                        }
                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSet the leave splash text to \"" + splash + "\""));
                     }
 
@@ -200,7 +252,28 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
                 }
 
 
-            } else if(args[0].equals("subdue") && args.length >= 2) {
+            } else if(args[0].equals("subdue") && args.length == 1) {
+                Area area = ServerEssentials.database.getAreaFromPosition(player.getLocation());
+                if(area!= null && area.getPlayer().getUniqueId().equals(playerUUID)){   
+                    int x = player.getLocation().getChunk().getX()*16;
+                    int z = player.getLocation().getChunk().getZ()*16; //Bottom right corner of chunk
+                    Shape shape =  new Shape(new Vector2d(x, z), new Vector2d(x, z+16), new Vector2d(x+16, z+16), new Vector2d(x+16, z)); //square
+
+                    try {
+                        ServerEssentials.database.resetConnection();
+                        ServerEssentials.database.removeAreaChunk(area, shape);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cSomething went wrong"));
+                        return true;
+                    }
+
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aRemoved current chunk from your area"));
+                } else if(area == null) {
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThere is no area at your position"));
+                } else {
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYou do not own this area"));
+                }
                 
             } else if(args[0].equals("info") && args.length == 1) {
                 Area area = ServerEssentials.database.getAreaFromPosition(player.getLocation());
@@ -233,8 +306,25 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
                 }
 
 
-            } else if(args[0].equals("trust") && args.length >= 2) {
-                
+            } else if(args[0].equals("delete") && args.length == 1) {
+                Area area = ServerEssentials.database.getAreaFromPosition(player.getLocation());
+
+                if(area != null && area.getPlayer().getUniqueId().equals(playerUUID)){   
+                    try {
+                        ServerEssentials.database.resetConnection();
+                        ServerEssentials.database.deleteArea(area);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cSomething went wrong"));
+                        return true;
+                    }
+
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aRemoved area"));
+                } else if(area == null) {
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThere is no area at your position"));
+                } else {
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYou do not own this area"));
+                }
             }
         }
     
@@ -250,7 +340,7 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
         }
 
         if(label.equalsIgnoreCase("area") && args.length == 1) {
-            return Arrays.asList("create", "expand", "edit", "delete", "subdue", "info", "trust");
+            return Arrays.asList("create", "expand", "edit", "delete", "subdue", "info");
 
         } else if(label.equalsIgnoreCase("area") && args.length == 2 && args[0].equals("expand")) {
             return ServerEssentials.database.getAreaNames(player.getUniqueId());

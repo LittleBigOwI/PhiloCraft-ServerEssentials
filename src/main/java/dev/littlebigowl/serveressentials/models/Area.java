@@ -1,5 +1,7 @@
 package dev.littlebigowl.serveressentials.models;
 
+import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,27 +27,64 @@ public class Area {
     
     private String name;
     private UUID playerUUID;
-    private String id;
+    private int id;
     private Shape shape;
     private Color color;
     private String enterSplash;
     private String outSplash;
+    private String groupName;
     public ArrayList<Shape> chunks = new ArrayList<>();
     public HashMap<String, Boolean> permissions = new HashMap<>();
     public long creationDate;
 
     public Area(String areaName, UUID playerUUID, Shape shape, Color color) {
-        this.name = areaName;
+        int id = 0;
+        
+        ArrayList<Integer> ids = new ArrayList<>();
+        for(Area area : ServerEssentials.database.getAreas()) {
+            ids.add(area.getId());
+        }
+        Collections.sort(ids);
+
+        for(int areaId : ids) {
+            if(areaId == id) {
+                id++;
+            }
+        }
+        
+        this.id = id;
+        
         this.playerUUID = playerUUID;
-        this.id = areaName.replace(" ", "_");
-        this.chunks.add(shape);
+        this.name = areaName;
+        
+        if(ServerEssentials.database.cachedplayerAreas.get(playerUUID) != null && ServerEssentials.database.cachedplayerAreas.get(playerUUID).size() != 0) {
+            this.groupName = ServerEssentials.database.cachedplayerAreas.get(playerUUID).get(0).getGroupName();
+        } else {
+            this.groupName = this.getPlayer().getName() + "s claims";
+        }
+        
         this.shape = shape;
-        this.creationDate = System.currentTimeMillis() / 1000L;
+        this.chunks.add(shape);
+        this.creationDate = Instant.now().getEpochSecond();
         this.permissions.put("doMobGriefing", true);
         this.permissions.put("doPVP", true);
         this.color = color;
         this.enterSplash = null;
         this.outSplash = null;
+    }
+
+    public Area(int id, UUID playerUUID, String name, String groupName, ArrayList<Shape> shapes, long creationDate, boolean doMobGriefing, boolean doPVP, Color color, String enterSplash, String outSplash) {
+        this.id = id;
+        this.playerUUID = playerUUID;
+        this.name = name;
+        this.groupName = groupName;
+        this.chunks = shapes;
+        this.creationDate = creationDate;
+        this.permissions.put("doMobGriefing", doMobGriefing);
+        this.permissions.put("doPVP", doPVP);
+        this.color = color;
+        this.enterSplash = enterSplash;
+        this.outSplash = outSplash;
     }
 
     private static boolean compareVector2d(Vector2d vector1, Vector2d vector2) {
@@ -279,6 +318,24 @@ public class Area {
         return points;
     }
 
+    public static ArrayList<Shape> fromAreaStringChunks(String areaStringChunks) {
+        ArrayList<Shape> chunks = new ArrayList<>();
+        String[] areaStringShapes = areaStringChunks.split("@");
+
+        for(String stringShape : areaStringShapes) {
+            String[] stringCorners = stringShape.split(":");
+            
+            ArrayList<Vector2d> corners = new ArrayList<>();
+            for(String stringCorner : stringCorners) {
+                corners.add(new Vector2d(Integer.parseInt(stringCorner.split("\\.")[0]), Integer.parseInt(stringCorner.split("\\.")[1])));
+            }
+            Shape shape = new Shape(corners);
+            chunks.add(shape);
+        }
+
+        return chunks;
+    }
+
     public boolean addChunk(Shape shape) {
         boolean available = !(this.getCommonSides(shape).size() == 0);
         ArrayList<Shape> allChunks = ServerEssentials.database.getAreaShapes();
@@ -327,13 +384,6 @@ public class Area {
             }
         }
 
-        String markerSetName;
-        if(this.getPlayer().getName().endsWith("s")) {
-            markerSetName = this.getPlayer().getName() + " claims";
-        } else {
-            markerSetName = this.getPlayer().getName() + "s claims";
-        }
-
         ExtrudeMarker marker = ExtrudeMarker.builder()
             .label(this.name)
             .shape(new Shape(this.getAnchorPoints()), -64, 320)
@@ -343,15 +393,15 @@ public class Area {
             .build();
 
         MarkerSet markerSet = MarkerSet.builder()
-            .label(markerSetName)
+            .label(this.groupName)
             .build();
         
-        markerSet.put(this.id, marker);
+        markerSet.put(this.id + "", marker);
                 
         ServerEssentials.blueMapAPI.getWorld("world").ifPresent(world -> {
             for(BlueMapMap map : world.getMaps()) {
                 if(map.getMarkerSets().get(this.playerUUID.toString()) != null) {
-                    map.getMarkerSets().get(this.playerUUID.toString()).put(this.id, marker);
+                    map.getMarkerSets().get(this.playerUUID.toString()).put(this.id + "", marker);
                 } else {
                     map.getMarkerSets().put(this.playerUUID.toString(), markerSet);
                 }
@@ -378,6 +428,7 @@ public class Area {
     }
 
     public void setGroupName(String groupName) {
+        this.groupName = groupName;
         ServerEssentials.blueMapAPI.getWorld("world").ifPresent(world -> {
             for(BlueMapMap map : world.getMaps()) {         
                 map.getMarkerSets().get(this.playerUUID.toString()).setLabel(groupName);
@@ -409,4 +460,53 @@ public class Area {
         return this.outSplash;
     }
 
+    public int getId() {
+        return this.id;
+    }
+
+    public String getStringShape(Shape s) {
+        String stringShape = "";
+        for(Vector2d point : s.getPoints()) {
+            stringShape = stringShape + point.getFloorX() + "." + point.getFloorY() + ":";
+        }
+        stringShape = stringShape.substring(0, stringShape.length() - 1);
+
+        return stringShape;
+    }
+
+    public String getAreaStringChunks() {
+        String stringChunks = "";
+        for(Shape s : this.chunks) {
+            stringChunks = stringChunks + this.getStringShape(s) + "@";
+        }
+        stringChunks = stringChunks.substring(0, stringChunks.length() - 1);
+
+        return stringChunks;
+    }
+
+    public String getGroupName() {
+        return this.groupName;
+    }
+
+    public void removeChunk(Shape shape) {
+        if(this.chunks.size() == 1) {
+            try {
+                ServerEssentials.database.resetConnection();
+                ServerEssentials.database.deleteArea(this);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } else {
+            this.chunks.remove(shape);   
+            this.draw();
+        }
+    }
+
+    public void delete() {
+        ServerEssentials.blueMapAPI.getWorld("world").ifPresent(world -> {
+            for(BlueMapMap map : world.getMaps()) {         
+                map.getMarkerSets().get(this.playerUUID.toString()).remove(this.id + "");
+            }
+        });
+    }
 }
