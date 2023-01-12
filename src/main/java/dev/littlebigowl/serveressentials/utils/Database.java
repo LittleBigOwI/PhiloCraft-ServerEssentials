@@ -502,6 +502,10 @@ public class Database {
         int claimedChunks = 0;
         int playtime = Math.round(player.getStatistic(Statistic.PLAY_ONE_MINUTE)/1200)/60;
         ArrayList<Area> playerAreas = ServerEssentials.database.cachedplayerAreas.get(player.getUniqueId());
+
+        if(playerAreas == null) {
+            return playtime;
+        }
         
         for(Area playerArea : playerAreas) {
             claimedChunks += playerArea.chunks.size();
