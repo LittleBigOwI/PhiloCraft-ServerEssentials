@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Statistic;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -36,6 +37,11 @@ public class AreaCommand implements CommandExecutor, TabCompleter{
         if(sender instanceof Player && label.equalsIgnoreCase("area")) {
             Player player = (Player) sender;
             UUID playerUUID = player.getUniqueId();
+
+            if(!player.getWorld().getEnvironment().equals(World.Environment.NORMAL)) {
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cAreas are only usable in the overworld."));
+                return true;
+            }
             
             if(args[0].equals("create") && args.length >= 2) {
                 int remainingPlayerChunks = ServerEssentials.database.getPlayerAvailableChunks(player);
